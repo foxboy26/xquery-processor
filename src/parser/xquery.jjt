@@ -1,0 +1,311 @@
+options {
+  MULTI = true;
+  KEEP_LINE_COLUMN = false;
+}
+
+PARSER_BEGIN(XQueryParser)
+
+/** An XQuery Grammar. */
+public class XQueryParser {
+
+  /** Main entry point. */
+  public static void main(String args[]) {
+    System.out.println("Reading from standard input...");
+    XQueryParser t = new XQueryParser(System.in);
+    try {
+      ASTStart n = t.Start();
+      n.dump(">");
+      System.out.println("Thank you.");
+    } catch (Exception e) {
+      System.out.println("Oops.");
+      System.out.println(e.getMessage());
+      e.printStackTrace();
+    }
+  }
+}
+
+PARSER_END(XQueryParser)
+
+
+SKIP :
+{
+  " "
+| 
+  "\t"
+| 
+  "\n"
+| 
+  "\r"
+}
+
+TOKEN [IGNORE_CASE]:
+{
+  < DOC  : "doc" >
+| 
+  < TEXT : "text()" >
+| 
+  < EQ   : "=" | "eq" >
+| 
+  < IS   : "==" | "is" >
+| 
+  < AND  : "and" >
+|   
+  < OR   : "or" >
+| 
+  < NOT  : "not" >
+|
+  < FOR  : "for" >
+|
+  < IN   : "in" >
+|
+  < LET  : "let" >
+|
+  < WHERE : "where" >
+|
+  < SOME   : "some" >
+|
+  < EMPTY : "empty" >
+|
+  < SATISFIES : "satisfies" >
+|
+  < RETURN    : "return" >
+|
+  < COMMA     : "," >
+|
+  < ASSIGN    : ":=" >
+}
+
+TOKEN :
+{
+  < STRING  : "\"" (~["\""] | "\\\"")*  "\"" >
+| 
+  < TAGNAME : ( ["a"-"z","A"-"Z","_","-","0"-"9"] )+ >
+| 
+  < VAR     : "$"< TAGNAME > >
+}
+
+/** Main production. */
+ASTStart Start() : {}
+{
+  //XPath()
+  XQuery()
+  { return jjtThis; }
+}
+
+/** An Xpath. */
+void XPath() #void : {}
+{
+  AbsPath()
+  //Filter()
+}
+
+/** An Absolute Path. */
+void DocPath() #Doc : { Token t;}
+{
+  <DOC> "(" t = <STRING> { jjtThis.fileName = t.image; } ")"
+}
+
+void AbsPath() #void : {}
+{
+  LOOKAHEAD(5)
+  (DocPath() "/" RelPath())  #AbsSlash
+| 
+  LOOKAHEAD(5)
+  (DocPath() "//" RelPath()) #AbsDSlash
+}
+
+/** A Relative Path. */
+void RelPath() #void : {}
+{
+  LOOKAHEAD(RelPathPrime() ("/" RelPath())+)
+  (RelPathPrime() (LOOKAHEAD("/" RelPath())"/" RelPath())+)      #RelSlash
+| 
+  LOOKAHEAD(RelPathPrime() ("//" RelPath())+)
+  (RelPathPrime() (LOOKAHEAD("//" RelPath())"//" RelPath())+)      #RelDSlash
+| 
+  LOOKAHEAD(RelPathPrime() ("[" Filter() "]")+ RelSlash())
+  (RelPathPrime() ("[" Filter() "]")+  RelSlash())            #RelFilter 
+| 
+  LOOKAHEAD(RelPathPrime() ("[" Filter() "]")+  RelDSlash())
+  (RelPathPrime() ("[" Filter() "]")+ RelDSlash())           #RelFilter 
+| 
+  LOOKAHEAD(RelPathPrime() ("[" Filter() "]")+ RelComma())
+  (RelPathPrime() ("[" Filter() "]")+ RelComma())            #RelFilter 
+| 
+  LOOKAHEAD(RelPathPrime() ("[" Filter() "]")+)
+  (RelPathPrime() ("[" Filter() "]")+)                       #RelFilter 
+|  
+  LOOKAHEAD(RelPathPrime() (<COMMA> RelPath())+)
+  (RelPathPrime() (LOOKAHEAD(<COMMA> RelPath()) <COMMA> RelPath())+)       #Comma
+| 
+  LOOKAHEAD(RelPathPrime())
+  RelPathPrime()                                           //#Epsilon
+}
+
+void RelSlash() #RelSlash : {}
+{
+  "/" RelPath()
+} 
+
+void RelDSlash() #RelDSlash : {}
+{
+  "//" RelPath()
+} 
+
+void RelComma() #RelComma : {}
+{
+  <COMMA> RelPath()
+} 
+
+void RelFilter() #RelFilter : {}
+{
+  "[" Filter() "]"
+}
+
+void RelPathPrime() #void : { Token t; }
+{
+  "*"                                          #Star
+| 
+  "."                                          #Dot
+| 
+  ".."                                         #Ddot
+| 
+  <TEXT>                                       #Text
+| 
+  ("(" RelPath() ")")                          #Paren
+| 
+  t = <TAGNAME> { jjtThis.tagName = t.image; } #TagName
+}
+
+/** A Filter Path. */
+void Filter() #void : {}
+{
+  LOOKAHEAD(FilterPrime() (<AND> Filter())+)
+  (FilterPrime() (LOOKAHEAD(<AND> Filter()) <AND> Filter())+) #FilterAnd
+| 
+  LOOKAHEAD(FilterPrime() (<OR>  Filter())+)
+  (FilterPrime() (LOOKAHEAD(<AND> Filter()) <OR>  Filter())+) #FilterOr 
+| 
+  LOOKAHEAD(FilterPrime())
+  FilterPrime()                                             //#Epsilon
+}
+
+void FilterPrime() #void : {}
+{
+  LOOKAHEAD(RelPath() <EQ>)
+  (RelPath() <EQ> RelPath()) #FilterEq
+| 
+  LOOKAHEAD(RelPath() <IS>)
+  (RelPath() <IS> RelPath()) #FilterIs
+| 
+  LOOKAHEAD(RelPath())
+  RelPath()                //#FilterRelPath 
+| 
+  ("(" Filter() ")")         #FilterParen
+| 
+  (<NOT> Filter())           #FilterNot
+}
+
+void ForClause() #ForClause : {}
+{
+  <FOR> In() (<COMMA> In())*
+}
+
+void In() #In : {}
+{
+  Var() <IN> XQuery()
+}
+
+void LetClause() #LetClause : {}
+{
+  <LET> Assign() (<COMMA> Assign())*
+}
+
+void Assign() #Assign : {}
+{
+  Var() <ASSIGN> XQuery()
+}
+
+void WhereClause() #void : {}
+{
+  (<WHERE> Cond()) #WhereClause
+|
+  {}
+}
+
+void ReturnClause() #void : {}
+{
+  (<RETURN> XQuery()) #ReturnClause
+}
+
+void Cond() #void : {}
+{
+  LOOKAHEAD(CondPrime() (<AND> Cond())+)
+  (CondPrime() (LOOKAHEAD(<AND> Cond()) <AND> Cond())+) #CondAnd
+| 
+  LOOKAHEAD(CondPrime() (<OR>  Cond())+)
+  (CondPrime() (LOOKAHEAD(<AND> Cond()) <OR>  Cond())+) #CondOr 
+| 
+  LOOKAHEAD(CondPrime())
+  CondPrime()                                             //#Epsilon
+}
+
+void CondPrime() #void : {}
+{
+  LOOKAHEAD(XQuery() <EQ>)
+  (XQuery() <EQ> XQuery()) #CondEq
+| 
+  LOOKAHEAD(XQuery() <EQ>)
+  (XQuery() <IS> XQuery()) #CondIs
+| 
+  (<EMPTY> "(" XQuery() ")")           #CondEmpty
+|
+  LOOKAHEAD(<SOME> In() (<COMMA> In())*)
+  (<SOME> In() (LOOKAHEAD(<COMMA> In()) <COMMA> In())* <SATISFIES> Cond()) #CondSome
+| 
+  ("(" Cond() ")")         #Paren
+}
+
+void Var() #Var : {}
+{
+  <VAR>
+}
+
+void XQuery() #void : {}
+{
+  LOOKAHEAD(XQueryPrime() "/" RelPath())
+  (XQueryPrime() "/" RelPath())      #Slash
+|
+  LOOKAHEAD(XQueryPrime() Temp())
+  (XQueryPrime() (LOOKAHEAD(Temp()) Temp())+)       #Comma
+| 
+  LOOKAHEAD(XQueryPrime())
+  XQueryPrime()                                           //#Epsilon
+}
+
+void Temp() #void : {}
+{
+  LOOKAHEAD({ (getToken(1).kind == COMMA && getToken(3).kind != IN && getToken(3).kind != ASSIGN )})
+  <COMMA> XQuery()
+}
+
+void XQueryPrime() #void : { Token t; }
+{
+  Var()
+| 
+  <STRING>                                       #STRING
+| 
+  AbsPath()                                     
+| 
+  ("(" XQuery() ")")                          #Paren
+| 
+  ("<" <TAGNAME> ">" "{" XQuery() "}" "<" "/" <TAGNAME> ">") #NEWTAG
+|
+  LOOKAHEAD(ForClause() LetClause())
+  (ForClause() LetClause() WhereClause() ReturnClause()) #FLWR
+|
+  LOOKAHEAD(ForClause())
+  (ForClause() WhereClause() ReturnClause()) #FLWR
+|
+  (LetClause() XQuery())     #LX
+}
