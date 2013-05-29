@@ -1,6 +1,7 @@
 options {
   MULTI = true;
   KEEP_LINE_COLUMN = false;
+  VISITOR = true;
 }
 
 PARSER_BEGIN(XQueryParser)
