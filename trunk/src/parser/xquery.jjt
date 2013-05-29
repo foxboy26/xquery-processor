@@ -5,6 +5,8 @@ options {
 
 PARSER_BEGIN(XQueryParser)
 
+package parser;
+
 /** An XQuery Grammar. */
 public class XQueryParser {
 
@@ -266,9 +268,9 @@ void CondPrime() #void : {}
   ("(" Cond() ")")         #Paren
 }
 
-void Var() #Var : {}
+void Var() #Var : { Token t;}
 {
-  <VAR>
+  t = <VAR> { jjtThis.varName = t.image; }
 }
 
 void XQuery() #void : {}
@@ -293,13 +295,13 @@ void XQueryPrime() #void : { Token t; }
 {
   Var()
 | 
-  <STRING>                                       #STRING
+  t = <STRING> { jjtThis.strName = t.image; }                                       #String
 | 
   AbsPath()                                     
 | 
   ("(" XQuery() ")")                          #Paren
 | 
-  ("<" <TAGNAME> ">" "{" XQuery() "}" "<" "/" <TAGNAME> ">") #NEWTAG
+  ("<" t = <TAGNAME> { jjtThis.tagName = t.image; } ">" "{" XQuery() "}" "<" "/" <TAGNAME> ">") #Newtag
 |
   LOOKAHEAD(ForClause() LetClause())
   (ForClause() LetClause() WhereClause() ReturnClause()) #FLWR
