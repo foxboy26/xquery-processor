@@ -1,1 +1,1 @@
-doc("D:\java project\XQuery\src\traverser\test.xml")/*
+doc("D:\java project\XQuery\src\traverser\test.xml")/*/book

@@ -71,11 +71,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTStart node, Object data) {
 		// TODO Auto-generated method stub
-		node.jjtGetChild(0).jjtGetChild(0).jjtAccept(this, data);
-		ArrayList<Node> init = new ArrayList<Node>();
-		init.add(root);
-		node.jjtGetChild(0).jjtAccept(this, init);
-		return init;
+	//	node.jjtGetChild(0).jjtGetChild(0).jjtAccept(this, data);
+		if(node.jjtGetNumChildren() != 0)
+			data = node.jjtGetChild(0).jjtAccept(this, data);
+	//	ArrayList<Node> init = new ArrayList<Node>();
+	//	init.add(root);
+	//	node.jjtGetChild(0).jjtAccept(this, init);
+		return data;
 	}
 
 	@Override
@@ -110,15 +112,17 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			e.printStackTrace();
 		}
 
-		root = parser.getDocument();
-		node.childrenAccept(this, root);
-		return root;
+		data = parser.getDocument();
+		ArrayList<Node> init = new ArrayList<Node>();
+		init.add((Node) data);
+		return init;
 	}
 
 	@Override
 	public Object visit(ASTAbsSlash node, Object data) {
 		// TODO Auto-generated method stub
 		ArrayList<Node> resultSet = new ArrayList<Node>();
+		data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
 		SimpleNode second = (SimpleNode) node.jjtGetChild(1);
 		
 		for(Node n: (ArrayList<Node>) data){	
@@ -141,7 +145,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		// TODO Auto-generated method stub
 //		node.childrenAccept(this, data);
 		
+		
 		ArrayList<Node> resultSet = new ArrayList<Node>();
+		data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		
 		SimpleNode second = (SimpleNode) node.jjtGetChild(1);
 		
 /*		if(second instanceof ASTStar){
@@ -187,6 +194,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTRelSlash node, Object data) {
 		// TODO Auto-generated method stub
 		ArrayList<Node> resultSet = new ArrayList<Node>();
+		data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
 		SimpleNode second = (SimpleNode) node.jjtGetChild(1);
 		
 		for(Node n: (ArrayList<Node>) data){	
@@ -208,6 +216,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTRelDSlash node, Object data) {
 		// TODO Auto-generated method stub
 		ArrayList<Node> resultSet = new ArrayList<Node>();
+		data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
 		SimpleNode second = (SimpleNode) node.jjtGetChild(1);
 
 		for(Node n: (ArrayList<Node>) data){	
@@ -243,7 +252,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTStar node, Object data) {
 		// TODO Auto-generated method stub
-		ArrayList<Node> resultSet = new ArrayList<Node>();
+		/*ArrayList<Node> resultSet = new ArrayList<Node>();
 		for(Node n: (ArrayList<Node>)data){
 			NodeList children = n.getChildNodes();
 			int l = children.getLength();
@@ -254,9 +263,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 					resultSet.add(cur);
 				}							
 			}		
-		}	
-		node.childrenAccept(this, resultSet);
-		return resultSet;
+		}*/
+		if(node.jjtGetNumChildren() != 0)
+			data = node.jjtGetChild(0).jjtAccept(this, data);
+		return data;
 	}
 
 	@Override
@@ -286,7 +296,14 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTTagName node, Object data) {
 		// TODO Auto-generated method stub
-		return node.tagName;
+		ArrayList<Node> resultSet = new ArrayList<Node>();
+		for(Node n: (ArrayList<Node>)data){
+		String name = n.getNodeName();
+			if(name.equals(node.tagName)){
+				resultSet.add(n);
+			}
+		}
+		return resultSet;
 	}
 
 	@Override
