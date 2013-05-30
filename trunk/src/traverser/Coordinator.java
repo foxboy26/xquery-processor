@@ -21,8 +21,8 @@ public class Coordinator {
 			ASTStart n = t.Start();
 			n.dump(">");
 			XQueryParserVisitor visitor = new XQueryVisitor();
-			n.jjtAccept(visitor, data);
-
+			data = (ArrayList<Node>) n.jjtAccept(visitor, data);
+			System.out.println(data);
 		} catch (Exception e) {
 			System.out.println("Oops.");
 			System.out.println(e.getMessage());
