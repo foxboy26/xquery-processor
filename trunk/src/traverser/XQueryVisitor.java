@@ -72,6 +72,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTStart node, Object data) {
 		// TODO Auto-generated method stub
 	//	node.jjtGetChild(0).jjtGetChild(0).jjtAccept(this, data);
+		
 		if(node.jjtGetNumChildren() != 0)
 			data = node.jjtGetChild(0).jjtAccept(this, data);
 	//	ArrayList<Node> init = new ArrayList<Node>();
@@ -85,16 +86,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		// TODO Auto-generated method stub
 		DOMParser parser = new DOMParser();
 		try {
-			parser.setFeature(
-					"http://apache.org/xml/features/dom/defer-node-expansion",
-					true);
+			parser.setFeature("http://apache.org/xml/features/dom/defer-node-expansion", true);
 			parser.setFeature("http://xml.org/sax/features/validation", false);
 			parser.setFeature("http://xml.org/sax/features/namespaces", true);
-			parser.setFeature(
-					"http://apache.org/xml/features/validation/schema", true);
-			parser.setFeature(
-					"http://apache.org/xml/features/validation/schema-full-checking",
-					false);
+			parser.setFeature("http://apache.org/xml/features/validation/schema", true);
+			parser.setFeature("http://apache.org/xml/features/validation/schema-full-checking", false);
+			parser.setFeature("http://apache.org/xml/features/dom/include-ignorable-whitespace", false);
+			
 			String filePath = node.fileName.substring(1, node.fileName.length()-1);
 			parser.parse(filePath);
 
@@ -119,24 +117,31 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	}
 
 	@Override
+	// doc(filename)/rp
 	public Object visit(ASTAbsSlash node, Object data) {
 		// TODO Auto-generated method stub
 		ArrayList<Node> resultSet = new ArrayList<Node>();
-		data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
-		SimpleNode second = (SimpleNode) node.jjtGetChild(1);
+		
+		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
+		
+		data = left.jjtAccept(this, data);
 		
 		for(Node n: (ArrayList<Node>) data){	
 			NodeList nodelist = n.getChildNodes();
 			int num = nodelist.getLength();
 			for(int i = 0; i < num; ++i){
 				Node cur = nodelist.item(i);
-				if (cur instanceof ElementImpl)
-				{
+				if (cur instanceof ElementImpl) {
 					resultSet.add(cur);
-				}			
-			}			
+				} else {
+					System.out.println("hahaha");
+				}
+			}
 		}
-		resultSet = (ArrayList<Node>) second.jjtAccept(this, resultSet);
+		
+		resultSet = (ArrayList<Node>) right.jjtAccept(this, resultSet);
+		
 		return resultSet;
 	}
 
@@ -194,8 +199,16 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTRelSlash node, Object data) {
 		// TODO Auto-generated method stub
 		ArrayList<Node> resultSet = new ArrayList<Node>();
-		data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
-		SimpleNode second = (SimpleNode) node.jjtGetChild(1);
+		
+		int childNum = node.jjtGetNumChildren();
+		
+		SimpleNode second;
+		if (childNum > 1) {
+			data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+			second = (SimpleNode) node.jjtGetChild(1);
+		} else {
+			second = (SimpleNode) node.jjtGetChild(0);
+		}
 		
 		for(Node n: (ArrayList<Node>) data){	
 			NodeList nodelist = n.getChildNodes();
@@ -216,13 +229,23 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTRelDSlash node, Object data) {
 		// TODO Auto-generated method stub
 		ArrayList<Node> resultSet = new ArrayList<Node>();
-		data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
-		SimpleNode second = (SimpleNode) node.jjtGetChild(1);
-
+		
+		int childNum = node.jjtGetNumChildren();
+		
+		SimpleNode second;
+		if (childNum > 1) {
+			data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+			second = (SimpleNode) node.jjtGetChild(1);
+		} else {
+			second = (SimpleNode) node.jjtGetChild(0);
+		}
+		
 		for(Node n: (ArrayList<Node>) data){	
 			resultSet = getDescendants(n, resultSet);	
 		}
+		
 		resultSet = (ArrayList<Node>) second.jjtAccept(this, resultSet);
+		
 		return resultSet;
 	}
 
@@ -230,17 +253,52 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTRelFilter node, Object data) {
 		// TODO Auto-generated method stub
 		ArrayList<Node> resultSet = new ArrayList<Node>();
-		SimpleNode second = (SimpleNode) node.jjtGetChild(1);	
-		resultSet = (ArrayList<Node>) second.jjtAccept(this, data);
+		
+		int childNum = node.jjtGetNumChildren();
+		
+		data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		
+		for (int i = 1; i < childNum -1; i++) {
+			SimpleNode second = (SimpleNode) node.jjtGetChild(i);	
+			for(Node n: (ArrayList<Node>) data){	
+	      ArrayList<Node> temp = new ArrayList<Node>();
+	      temp.add(n);
+	      Boolean accept = (Boolean) second.jjtAccept(this, temp);
+	      if (accept)
+	        resultSet.add(n);
+			}
+			data = resultSet;
+		}
+		
+		SimpleNode last = (SimpleNode) node.jjtGetChild(childNum-1);	
+		if (last instanceof ASTRelFilter) {
+			for(Node n: (ArrayList<Node>) data){	
+	      ArrayList<Node> temp = new ArrayList<Node>();
+	      temp.add(n);
+	      Boolean accept = (Boolean) last.jjtAccept(this, temp);
+	      if (accept)
+	        resultSet.add(n);
+			}
+		} else {
+			resultSet = (ArrayList<Node>) last.jjtAccept(this, resultSet);
+		}
+		
 		return resultSet;
 	}
 
 	@Override
 	public Object visit(ASTComma node, Object data) {
 		// TODO Auto-generated method stub
-		ArrayList<Node> resultSet1 = new ArrayList<Node>();
-		ArrayList<Node> resultSet2 = new ArrayList<Node>();
-		return null;
+		ArrayList<Node> left = new ArrayList<Node>();
+		ArrayList<Node> right = new ArrayList<Node>();
+		
+		left = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		right = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, data);
+		
+		for (Node n : right)
+			left.add(n);
+		
+		return left;
 	}
 
 	@Override
@@ -252,18 +310,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTStar node, Object data) {
 		// TODO Auto-generated method stub
-		/*ArrayList<Node> resultSet = new ArrayList<Node>();
-		for(Node n: (ArrayList<Node>)data){
-			NodeList children = n.getChildNodes();
-			int l = children.getLength();
-			for(int i = 0; i < l; ++i){
-				Node cur = children.item(i);
-				if (cur instanceof ElementImpl)
-				{
-					resultSet.add(cur);
-				}							
-			}		
-		}*/
 		if(node.jjtGetNumChildren() != 0)
 			data = node.jjtGetChild(0).jjtAccept(this, data);
 		return data;
@@ -272,13 +318,19 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTDot node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		return data;
 	}
 
 	@Override
 	public Object visit(ASTDdot node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Node> resultSet = new ArrayList<Node> ();
+		
+		for (Node n : (ArrayList<Node>) data) {
+			resultSet.add(n.getParentNode());
+		}
+		
+		return resultSet;
 	}
 
 	@Override
@@ -290,7 +342,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTParen node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		return data;
 	}
 
 	@Override
@@ -309,39 +361,93 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTFilterAnd node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
+		
+		Boolean leftRes = (Boolean) left.jjtAccept(this, data);
+		Boolean rightRes = (Boolean) right.jjtAccept(this, data);
+		
+		return leftRes && rightRes;
 	}
 
 	@Override
 	public Object visit(ASTFilterOr node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
+		
+		Boolean leftRes = (Boolean) left.jjtAccept(this, data);
+		Boolean rightRes = (Boolean) right.jjtAccept(this, data);
+		
+		return leftRes || rightRes;
 	}
 
 	@Override
 	public Object visit(ASTFilterEq node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
+    
+		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, data);
+		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, data);
+
+    //TODO: change equal function later.
+    for (Node l : leftRes) {
+      for (Node r : rightRes) {
+        if (l.equals(r)) {
+          return true;
+        }
+      }
+    }
+
+		return false;
 	}
 
 	@Override
 	public Object visit(ASTFilterIs node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
+    
+		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, data);
+		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, data);
+
+    //TODO: change equal function later.
+    for (Node l : leftRes) {
+      for (Node r : rightRes) {
+        if (l == r) {
+          return true;
+        }
+      }
+    }
+
+		return false;
 	}
 
 	@Override
 	public Object visit(ASTFilterParen node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		return data;
 	}
 
 	@Override
 	public Object visit(ASTFilterNot node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		SimpleNode leaf = (SimpleNode) node.jjtGetChild(0);
+		
+		Boolean leafRes = (Boolean) leaf.jjtAccept(this, data);
+		
+		return !leafRes;
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
 	@Override
 	public Object visit(ASTForClause node, Object data) {
 		// TODO Auto-generated method stub

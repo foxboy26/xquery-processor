@@ -16,10 +16,11 @@ public class Coordinator {
 		// String str = "doc(\"test.xml\")//book";
 		XQueryParser t;
 		try {
-			t = new XQueryParser(new FileInputStream(new File("D:\\java project\\XQuery\\src\\traverser\\xpath.txt")));
+			t = new XQueryParser(new FileInputStream(new File("xpath.txt")));
 			ArrayList<Node> data = new ArrayList<Node>();
 			ASTStart n = t.Start();
 			n.dump(">");
+			
 			XQueryParserVisitor visitor = new XQueryVisitor();
 			data = (ArrayList<Node>) n.jjtAccept(visitor, data);
 			System.out.println(data);
