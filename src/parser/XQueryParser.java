@@ -5,7 +5,7 @@ package parser;
 public class XQueryParser/*@bgen(jjtree)*/implements XQueryParserTreeConstants, XQueryParserConstants {/*@bgen(jjtree)*/
   protected static JJTXQueryParserState jjtree = new JJTXQueryParserState();
   /** Main entry point. */
-  public static void main(String args[]) {
+  /*public static void main(String args[]) {
     System.out.println("Reading from standard input...");
     XQueryParser t = new XQueryParser(System.in);
     try {
@@ -17,7 +17,7 @@ public class XQueryParser/*@bgen(jjtree)*/implements XQueryParserTreeConstants, 
       System.out.println(e.getMessage());
       e.printStackTrace();
     }
-  }
+  }*/
 
 /** Main production. */
   static final public ASTStart Start() throws ParseException {
