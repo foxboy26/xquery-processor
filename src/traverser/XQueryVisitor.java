@@ -20,6 +20,7 @@ import parser.ASTFilterIs;
 import parser.ASTFilterNot;
 import parser.ASTFilterOr;
 import parser.ASTFilterParen;
+import parser.ASTFilterRelPath;
 import parser.ASTForClause;
 import parser.ASTIn;
 import parser.ASTLX;
@@ -109,7 +110,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTAbsDSlash node, Object data) {
 		// TODO Auto-generated method stub
-		
 		ArrayList<Node> resultSet = new ArrayList<Node>();
 		data = node.jjtGetChild(0).jjtAccept(this, data);
 
@@ -151,7 +151,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		
 		int childNum = node.jjtGetNumChildren();
 		
-		SimpleNode second;
+		/*SimpleNode second;
 		if (childNum > 1) {
 			data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
 			second = (SimpleNode) node.jjtGetChild(1);
@@ -160,10 +160,25 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		}
 		
 		for(Node n: (ArrayList<Node>) data){
-			resultSet = getDescendants(n, resultSet);	
+			resultSet = getDescendants(n, resultSet);
 		}
 		
 		resultSet = (ArrayList<Node>) second.jjtAccept(this, resultSet);
+		
+		ArrayList<Node> resultSet = new ArrayList<Node>();
+		data = node.jjtGetChild(0).jjtAccept(this, data);
+
+		resultSet.addAll((ArrayList<Node>) data);
+		for(Node n: (ArrayList<Node>) data){
+			ArrayList<Node> descendants = new ArrayList<Node> ();
+			descendants = getDescendants(n, descendants);
+			resultSet.addAll(descendants);
+		}
+		
+		resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, resultSet);
+				
+		return data = unique(resultSet);*/
+		
 		
 		return unique(resultSet);
 	}
@@ -579,4 +594,11 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			lhs.add(n);
 		return lhs;
 	}
+
+	@Override
+  public Object visit(ASTFilterRelPath node, Object data) {
+	  // TODO Auto-generated method stub
+		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+	  return resultSet.size() > 0;
+  }
 }
