@@ -1,0 +1,1 @@
+doc("test.xml")//tag2/tag3[tag and tag][3 or 4][5 or 6]//..

@@ -1,0 +1,1 @@
+doc("test.xml")//tag2, (tag5/.)/tag3[tag is tag][3 == 4]//../tag3[not (tag = tag)]/*/text()
