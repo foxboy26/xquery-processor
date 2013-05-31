@@ -1,1 +1,1 @@
-doc("test.xml")//catalog[book eq test/book]
+doc("test.xml")/catalog[book eq test/book]
