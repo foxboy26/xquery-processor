@@ -40,6 +40,8 @@ import parser.ASTTagName;
 import parser.ASTText;
 import parser.ASTVar;
 import parser.ASTWhereClause;
+import parser.ASTXQueryComma;
+import parser.ASTXQuerySlash;
 import parser.SimpleNode;
 import parser.XQueryParserVisitor;
 
@@ -48,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.dom.ElementImpl;
 import org.apache.xerces.dom.TextImpl;
 import org.apache.xerces.parsers.DOMParser;
@@ -201,7 +204,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 				last instanceof ASTFilterIs ||
 				last instanceof ASTFilterParen ||
 				last instanceof ASTFilterRelPath
-				
 			) {
 			for(Node n: (ArrayList<Node>) data){	
 	      ArrayList<Node> temp = new ArrayList<Node>();
@@ -215,18 +217,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		}
 		
 		return resultSet;
-	}
-
-	@Override
-	public Object visit(ASTComma node, Object data) {
-		// TODO Auto-generated method stub
-		ArrayList<Node> left = new ArrayList<Node>();
-		ArrayList<Node> right = new ArrayList<Node>();
-		
-		left = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
-		right = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, data);
-		
-		return concat(left, right);
 	}
 
 	@Override
@@ -326,6 +316,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		return data = resultSet;
 	}
 
+	@Override
+  public Object visit(ASTFilterRelPath node, Object data) {
+	  // TODO Auto-generated method stub
+		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+	  return resultSet.size() > 0;
+  }
+	
 	@Override
 	public Object visit(ASTFilterAnd node, Object data) {
 		// TODO Auto-generated method stub
@@ -441,69 +438,146 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTAssign node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		checkNumOfChildren(node, 2, "[Assign]");
+		
+		Context context = (Context) data;
+		ASTVar varNode = (ASTVar) node.jjtGetChild(0);
+		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, context); 
+				
+	  context.add(varNode.varName, resultSet);
+		
+		return context;
 	}
 
 	@Override
 	public Object visit(ASTWhereClause node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		checkNumOfChildren(node, 1, "[WhereClause]");
+		
+		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
 	@Override
 	public Object visit(ASTReturnClause node, Object data) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO Auto-generated method stub		
+		checkNumOfChildren(node, 1, "[ReturnClause]");
+		
+		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
 	@Override
 	public Object visit(ASTCondAnd node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
+		
+		Boolean leftRes = (Boolean) left.jjtAccept(this, data);
+		Boolean rightRes = (Boolean) right.jjtAccept(this, data);
+		
+		return leftRes && rightRes;
 	}
 
 	@Override
 	public Object visit(ASTCondOr node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
+		
+		Boolean leftRes = (Boolean) left.jjtAccept(this, data);
+		Boolean rightRes = (Boolean) right.jjtAccept(this, data);
+		
+		return leftRes || rightRes;
 	}
 
 	@Override
 	public Object visit(ASTCondEq node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
+    
+		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, data);
+		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, data);
+
+    //TODO: change equal function later.
+    for (Node l : leftRes) {
+      for (Node r : rightRes) {
+        if (l.equals(r)) {
+          return true;
+        }
+      }
+    }
+
+		return false;
 	}
 
 	@Override
 	public Object visit(ASTCondIs node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
+		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
+    
+		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, data);
+		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, data);
+
+		for (Node l : leftRes) {
+      for (Node r : rightRes) {
+        if (l == r) {
+          return true;
+        }
+      }
+    }
+
+		return false;
 	}
 
 	@Override
 	public Object visit(ASTCondEmpty node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		return resultSet.isEmpty();
 	}
 
 	@Override
 	public Object visit(ASTCondSome node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		int numOfChild = node.jjtGetNumChildren();
+		
+		for (int i = 0; i < numOfChild - 1; i++) {
+			node.jjtGetChild(i).jjtAccept(this, data);
+		}
+		
+		return node.jjtGetChild(numOfChild - 1).jjtAccept(this, data);
 	}
 
 	@Override
 	public Object visit(ASTVar node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		Context c = (Context) data;
+		
+		return c.find(node.varName);
 	}
 
 	@Override
-	public Object visit(ASTSlash node, Object data) {
+	public Object visit(ASTXQuerySlash node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Node> resultSet;
+		
+		resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		
+		resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, resultSet);
+		
+		return unique(resultSet);
 	}
-
+	
+	@Override
+  public Object visit(ASTXQueryComma node, Object data) {
+	  // TODO Auto-generated method stub
+		ArrayList<Node> lhsResultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		ArrayList<Node> rhsResultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, data);
+		
+	  return concat(lhsResultSet, rhsResultSet);
+  }
+	
 	@Override
 	public Object visit(ASTString node, Object data) {
 		// TODO Auto-generated method stub
@@ -513,7 +587,19 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTNewtag node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		data = node.jjtGetChild(0).jjtAccept(this, data);
+		Document doc = new DocumentImpl();
+		Element newTag = doc.createElement(node.tagName);
+		
+		ArrayList<Node> nodeList = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		for (Node n : nodeList) {
+			newTag.appendChild(n);
+		}
+		
+		ArrayList<Node> resultSet = new ArrayList<Node> ();
+		resultSet.add(newTag);
+		
+		return data = resultSet;
 	}
 
 	@Override
@@ -591,13 +677,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			lhs.add(n);
 		return lhs;
 	}
-
-	@Override
-  public Object visit(ASTFilterRelPath node, Object data) {
-	  // TODO Auto-generated method stub
-		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
-	  return resultSet.size() > 0;
-  }
 	
   public boolean equals(Node lhs, Node rhs){
 	  if(lhs.getNodeType() != rhs.getNodeType())
@@ -666,5 +745,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		  return false;
 	  }
 	  return true;
+  }
+
+
+  void checkNumOfChildren(SimpleNode node, int num, String errMsg) {
+		int numOfChild = node.jjtGetNumChildren();
+		if (numOfChild != num) {
+			System.err.println("Error: " + errMsg + " should have " + num + " children, but only have " + numOfChild);
+		}
   }
 }

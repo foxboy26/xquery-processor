@@ -11,35 +11,35 @@ public interface XQueryParserTreeConstants
   public int JJTRELSLASH = 5;
   public int JJTRELDSLASH = 6;
   public int JJTRELFILTER = 7;
-  public int JJTCOMMA = 8;
-  public int JJTRELCOMMA = 9;
-  public int JJTSTAR = 10;
-  public int JJTDOT = 11;
-  public int JJTDDOT = 12;
-  public int JJTTEXT = 13;
-  public int JJTPAREN = 14;
-  public int JJTTAGNAME = 15;
-  public int JJTFILTERAND = 16;
-  public int JJTFILTEROR = 17;
-  public int JJTFILTEREQ = 18;
-  public int JJTFILTERIS = 19;
-  public int JJTFILTERRELPATH = 20;
-  public int JJTFILTERPAREN = 21;
-  public int JJTFILTERNOT = 22;
-  public int JJTFORCLAUSE = 23;
-  public int JJTIN = 24;
-  public int JJTLETCLAUSE = 25;
-  public int JJTASSIGN = 26;
-  public int JJTWHERECLAUSE = 27;
-  public int JJTRETURNCLAUSE = 28;
-  public int JJTCONDAND = 29;
-  public int JJTCONDOR = 30;
-  public int JJTCONDEQ = 31;
-  public int JJTCONDIS = 32;
-  public int JJTCONDEMPTY = 33;
-  public int JJTCONDSOME = 34;
-  public int JJTVAR = 35;
-  public int JJTSLASH = 36;
+  public int JJTRELCOMMA = 8;
+  public int JJTSTAR = 9;
+  public int JJTDOT = 10;
+  public int JJTDDOT = 11;
+  public int JJTTEXT = 12;
+  public int JJTPAREN = 13;
+  public int JJTTAGNAME = 14;
+  public int JJTFILTERAND = 15;
+  public int JJTFILTEROR = 16;
+  public int JJTFILTEREQ = 17;
+  public int JJTFILTERIS = 18;
+  public int JJTFILTERRELPATH = 19;
+  public int JJTFILTERPAREN = 20;
+  public int JJTFILTERNOT = 21;
+  public int JJTFORCLAUSE = 22;
+  public int JJTIN = 23;
+  public int JJTLETCLAUSE = 24;
+  public int JJTASSIGN = 25;
+  public int JJTWHERECLAUSE = 26;
+  public int JJTRETURNCLAUSE = 27;
+  public int JJTCONDAND = 28;
+  public int JJTCONDOR = 29;
+  public int JJTCONDEQ = 30;
+  public int JJTCONDIS = 31;
+  public int JJTCONDEMPTY = 32;
+  public int JJTCONDSOME = 33;
+  public int JJTVAR = 34;
+  public int JJTXQUERYSLASH = 35;
+  public int JJTXQUERYCOMMA = 36;
   public int JJTSTRING = 37;
   public int JJTNEWTAG = 38;
   public int JJTFLWR = 39;
@@ -55,7 +55,6 @@ public interface XQueryParserTreeConstants
     "RelSlash",
     "RelDSlash",
     "RelFilter",
-    "Comma",
     "RelComma",
     "Star",
     "Dot",
@@ -83,11 +82,12 @@ public interface XQueryParserTreeConstants
     "CondEmpty",
     "CondSome",
     "Var",
-    "Slash",
+    "XQuerySlash",
+    "XQueryComma",
     "String",
     "Newtag",
     "FLWR",
     "LX",
   };
 }
-/* JavaCC - OriginalChecksum=bc38b23b79aeb0221916905c4a262288 (do not edit this line) */
+/* JavaCC - OriginalChecksum=f2b072e8b8fb12f1a4b1f5b85bce0171 (do not edit this line) */

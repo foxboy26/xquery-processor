@@ -369,7 +369,7 @@ public class XQueryParser/*@bgen(jjtree)*/implements XQueryParserTreeConstants, 
     }
       }
     } else if (jj_2_12(2147483647)) {
-    ASTComma jjtn007 = new ASTComma(JJTCOMMA);
+    ASTRelComma jjtn007 = new ASTRelComma(JJTRELCOMMA);
     boolean jjtc007 = true;
     jjtree.openNodeScope(jjtn007);
       try {
@@ -1325,7 +1325,7 @@ public class XQueryParser/*@bgen(jjtree)*/implements XQueryParserTreeConstants, 
 
   static final public void XQuery() throws ParseException {
     if (jj_2_32(2147483647)) {
-    ASTSlash jjtn001 = new ASTSlash(JJTSLASH);
+    ASTXQuerySlash jjtn001 = new ASTXQuerySlash(JJTXQUERYSLASH);
     boolean jjtc001 = true;
     jjtree.openNodeScope(jjtn001);
       try {
@@ -1352,7 +1352,7 @@ public class XQueryParser/*@bgen(jjtree)*/implements XQueryParserTreeConstants, 
     }
       }
     } else if (jj_2_33(2147483647)) {
-    ASTComma jjtn002 = new ASTComma(JJTCOMMA);
+    ASTXQueryComma jjtn002 = new ASTXQueryComma(JJTXQUERYCOMMA);
     boolean jjtc002 = true;
     jjtree.openNodeScope(jjtn002);
       try {
