@@ -59,6 +59,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
@@ -552,18 +553,20 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTVar node, Object data) {
 		// TODO Auto-generated method stub
-		Context c = (Context) data;
+		Context context = (Context) data;
 		
-		return c.find(node.varName);
+		return context.find(node.varName);
 	}
 
 	@Override
 	public Object visit(ASTXQuerySlash node, Object data) {
 		// TODO Auto-generated method stub
+		checkNumOfChildren(node, 2, "[QuerySlash]");
+		
 		ArrayList<Node> resultSet;
+		Context context = (Context) data;
 		
-		resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
-		
+		resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, context);
 		resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, resultSet);
 		
 		return unique(resultSet);
@@ -572,8 +575,11 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
   public Object visit(ASTXQueryComma node, Object data) {
 	  // TODO Auto-generated method stub
-		ArrayList<Node> lhsResultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
-		ArrayList<Node> rhsResultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, data);
+		checkNumOfChildren(node, 2, "[QueryComma]");
+		
+		Context context = (Context) data;
+		ArrayList<Node> lhsResultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, context);
+		ArrayList<Node> rhsResultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, context);
 		
 	  return concat(lhsResultSet, rhsResultSet);
   }
@@ -581,25 +587,35 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTString node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		checkNumOfChildren(node, 0, "[String]");
+		
+		Document doc = new DocumentImpl();
+		Text newText = doc.createTextNode(node.strName.substring(1, node.strName.length() - 1));
+		ArrayList<Node> resultSet = new ArrayList<Node> ();
+		resultSet.add(newText);
+		
+		return resultSet;
 	}
 
 	@Override
 	public Object visit(ASTNewtag node, Object data) {
 		// TODO Auto-generated method stub
-		data = node.jjtGetChild(0).jjtAccept(this, data);
+		checkNumOfChildren(node, 1, "[Newtag]");
+		
+		Context context = (Context) data;
+		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		
 		Document doc = new DocumentImpl();
 		Element newTag = doc.createElement(node.tagName);
 		
-		ArrayList<Node> nodeList = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
-		for (Node n : nodeList) {
+		for (Node n : resultSet) {
 			newTag.appendChild(n);
 		}
 		
-		ArrayList<Node> resultSet = new ArrayList<Node> ();
+		resultSet.clear();
 		resultSet.add(newTag);
 		
-		return data = resultSet;
+		return resultSet;
 	}
 
 	@Override
@@ -660,7 +676,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		Document document = parser.getDocument();
 		
 		ArrayList<Node> root = new ArrayList<Node>();
-		//root.add(document.getFirstChild());
 		root.add(document);
 		return root;
 	}
