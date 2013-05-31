@@ -1,0 +1,3 @@
+    for $speakers in $act/SPEAKER, $a in $b
+    return
+      <h1>{ $act/TITLE }</h1>

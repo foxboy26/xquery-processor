@@ -1,0 +1,1 @@
+let $speakers := doc("fads")//sfd, $b := "fsa" $a

@@ -1,0 +1,22 @@
+<body>
+{
+    for $act in doc("hamlet.xml")//ACT
+      let $speakers := $act/SPEAKER
+      where some $a in (
+      
+        <body>
+        {
+            for $act in doc("hamlet.xml")//ACT
+              let $speakers := $act/SPEAKER
+              where some $a in "vadsv", $c, $a in $b satisfies empty("string")
+            return
+              <h1>{ $act/TITLE }</h1>
+        }
+        </body>
+
+      ), $c, $a in $b satisfies empty("string")
+    return
+      <h1>{ $act/TITLE }</h1>
+}
+</body>
+

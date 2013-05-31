@@ -5,7 +5,7 @@ package parser;
 public class XQueryParser/*@bgen(jjtree)*/implements XQueryParserTreeConstants, XQueryParserConstants {/*@bgen(jjtree)*/
   protected static JJTXQueryParserState jjtree = new JJTXQueryParserState();
   /** Main entry point. */
-  /*public static void main(String args[]) {
+  public static void main(String args[]) {
     System.out.println("Reading from standard input...");
     XQueryParser t = new XQueryParser(System.in);
     try {
@@ -17,7 +17,7 @@ public class XQueryParser/*@bgen(jjtree)*/implements XQueryParserTreeConstants, 
       System.out.println(e.getMessage());
       e.printStackTrace();
     }
-  }*/
+  }
 
 /** Main production. */
   static final public ASTStart Start() throws ParseException {
@@ -765,18 +765,12 @@ public class XQueryParser/*@bgen(jjtree)*/implements XQueryParserTreeConstants, 
     }
       }
     } else if (jj_2_21(2147483647)) {
-      RelPath();
-    } else {
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 25:
-    ASTFilterParen jjtn003 = new ASTFilterParen(JJTFILTERPAREN);
+    ASTFilterRelPath jjtn003 = new ASTFilterRelPath(JJTFILTERRELPATH);
     boolean jjtc003 = true;
     jjtree.openNodeScope(jjtn003);
-        try {
-          jj_consume_token(25);
-          Filter();
-          jj_consume_token(26);
-        } catch (Throwable jjte003) {
+      try {
+        RelPath();
+      } catch (Throwable jjte003) {
     if (jjtc003) {
       jjtree.clearNodeScope(jjtn003);
       jjtc003 = false;
@@ -790,19 +784,21 @@ public class XQueryParser/*@bgen(jjtree)*/implements XQueryParserTreeConstants, 
       {if (true) throw (ParseException)jjte003;}
     }
     {if (true) throw (Error)jjte003;}
-        } finally {
+      } finally {
     if (jjtc003) {
       jjtree.closeNodeScope(jjtn003, true);
     }
-        }
-        break;
-      case NOT:
-    ASTFilterNot jjtn004 = new ASTFilterNot(JJTFILTERNOT);
+      }
+    } else {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case 25:
+    ASTFilterParen jjtn004 = new ASTFilterParen(JJTFILTERPAREN);
     boolean jjtc004 = true;
     jjtree.openNodeScope(jjtn004);
         try {
-          jj_consume_token(NOT);
+          jj_consume_token(25);
           Filter();
+          jj_consume_token(26);
         } catch (Throwable jjte004) {
     if (jjtc004) {
       jjtree.clearNodeScope(jjtn004);
@@ -820,6 +816,33 @@ public class XQueryParser/*@bgen(jjtree)*/implements XQueryParserTreeConstants, 
         } finally {
     if (jjtc004) {
       jjtree.closeNodeScope(jjtn004, true);
+    }
+        }
+        break;
+      case NOT:
+    ASTFilterNot jjtn005 = new ASTFilterNot(JJTFILTERNOT);
+    boolean jjtc005 = true;
+    jjtree.openNodeScope(jjtn005);
+        try {
+          jj_consume_token(NOT);
+          Filter();
+        } catch (Throwable jjte005) {
+    if (jjtc005) {
+      jjtree.clearNodeScope(jjtn005);
+      jjtc005 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte005 instanceof RuntimeException) {
+      {if (true) throw (RuntimeException)jjte005;}
+    }
+    if (jjte005 instanceof ParseException) {
+      {if (true) throw (ParseException)jjte005;}
+    }
+    {if (true) throw (Error)jjte005;}
+        } finally {
+    if (jjtc005) {
+      jjtree.closeNodeScope(jjtn005, true);
     }
         }
         break;
