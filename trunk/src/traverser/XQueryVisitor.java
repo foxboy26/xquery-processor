@@ -102,6 +102,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
 		
 		data = left.jjtAccept(this, data);
+				
 		data = right.jjtAccept(this, data); 
 		
 		return data;
@@ -150,24 +151,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		ArrayList<Node> resultSet = new ArrayList<Node>();
 		
 		int childNum = node.jjtGetNumChildren();
-		
-		/*SimpleNode second;
-		if (childNum > 1) {
-			data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
-			second = (SimpleNode) node.jjtGetChild(1);
-		} else {
-			second = (SimpleNode) node.jjtGetChild(0);
+		if (childNum == 0) {
+			System.err.println("[RelDSlash] Error!");
+			System.exit(1);
 		}
 		
-		for(Node n: (ArrayList<Node>) data){
-			resultSet = getDescendants(n, resultSet);
-		}
+		data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
 		
-		resultSet = (ArrayList<Node>) second.jjtAccept(this, resultSet);
-		
-		ArrayList<Node> resultSet = new ArrayList<Node>();
-		data = node.jjtGetChild(0).jjtAccept(this, data);
-
 		resultSet.addAll((ArrayList<Node>) data);
 		for(Node n: (ArrayList<Node>) data){
 			ArrayList<Node> descendants = new ArrayList<Node> ();
@@ -175,12 +165,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			resultSet.addAll(descendants);
 		}
 		
-		resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, resultSet);
-				
-		return data = unique(resultSet);*/
+		if (childNum == 2)
+			resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, resultSet);
 		
-		
-		return unique(resultSet);
+		return data = unique(resultSet);
 	}
 
 	@Override
@@ -315,7 +303,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		int numOfChild = node.jjtGetNumChildren();
 	  //TODO check numOfChild;
 		ArrayList<Node> resultSet = new ArrayList<Node>();
-		
+				
 		ArrayList<Node> nodeList = (ArrayList<Node>) data;
 		for (Node n : nodeList) {
 			NodeList children = n.getChildNodes();
@@ -577,8 +565,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		Document document = parser.getDocument();
 		
 		ArrayList<Node> root = new ArrayList<Node>();
-		root.add(document.getFirstChild());
-
+		//root.add(document.getFirstChild());
+		root.add(document);
 		return root;
 	}
 		
