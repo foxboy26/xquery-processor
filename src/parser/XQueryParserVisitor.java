@@ -11,7 +11,6 @@ public interface XQueryParserVisitor
   public Object visit(ASTRelSlash node, Object data);
   public Object visit(ASTRelDSlash node, Object data);
   public Object visit(ASTRelFilter node, Object data);
-  public Object visit(ASTComma node, Object data);
   public Object visit(ASTRelComma node, Object data);
   public Object visit(ASTStar node, Object data);
   public Object visit(ASTDot node, Object data);
@@ -39,10 +38,11 @@ public interface XQueryParserVisitor
   public Object visit(ASTCondEmpty node, Object data);
   public Object visit(ASTCondSome node, Object data);
   public Object visit(ASTVar node, Object data);
-  public Object visit(ASTSlash node, Object data);
+  public Object visit(ASTXQuerySlash node, Object data);
+  public Object visit(ASTXQueryComma node, Object data);
   public Object visit(ASTString node, Object data);
   public Object visit(ASTNewtag node, Object data);
   public Object visit(ASTFLWR node, Object data);
   public Object visit(ASTLX node, Object data);
 }
-/* JavaCC - OriginalChecksum=24caa99634502021368072d979514047 (do not edit this line) */
+/* JavaCC - OriginalChecksum=02a5ea9676dfebfadfad97fda144a505 (do not edit this line) */
