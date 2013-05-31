@@ -193,7 +193,16 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		}
 		
 		SimpleNode last = (SimpleNode) node.jjtGetChild(childNum-1);	
-		if (last instanceof ASTRelFilter) {
+		if (	
+				last instanceof ASTFilterAnd || 
+				last instanceof ASTFilterOr ||
+				last instanceof ASTFilterNot ||
+				last instanceof ASTFilterEq ||
+				last instanceof ASTFilterIs ||
+				last instanceof ASTFilterParen ||
+				last instanceof ASTFilterRelPath
+				
+			) {
 			for(Node n: (ArrayList<Node>) data){	
 	      ArrayList<Node> temp = new ArrayList<Node>();
 	      temp.add(n);
@@ -353,7 +362,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
     //TODO: change equal function later.
     for (Node l : leftRes) {
       for (Node r : rightRes) {
-        if (l.equals(r)) {
+        if (equals(l,r)) {
           return true;
         }
       }
@@ -588,5 +597,74 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	  // TODO Auto-generated method stub
 		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
 	  return resultSet.size() > 0;
+  }
+	
+  public boolean equals(Node lhs, Node rhs){
+	  if(lhs.getNodeType() != rhs.getNodeType())
+		  return false;
+	  if(!lhs.getNodeName().equals(rhs.getNodeName()))
+		  return false;
+	  if(lhs instanceof TextImpl && rhs instanceof TextImpl){
+		  System.out.println("value:" + lhs.getNodeValue());
+		  if(!((TextImpl)lhs).getNodeValue().trim().equals(((TextImpl)rhs).getNodeValue().trim()))
+			  return false;
+	  }
+		  
+	  NodeList leftChildren = lhs.getChildNodes();
+	  NodeList rightChildren = rhs.getChildNodes();
+	  int leftNum = leftChildren.getLength();
+	  int rightNum = rightChildren.getLength();
+	  int i = 0, j = 0;
+	  while(i < leftNum && j < rightNum){
+		  
+		  while(
+				  i < leftNum &&(
+				  ((leftChildren.item(i) instanceof TextImpl) && ((TextImpl)leftChildren.item(i)).getNodeValue().trim().length() == 0) ||
+				  (!(leftChildren.item(i) instanceof TextImpl) && !(leftChildren.item(i) instanceof ElementImpl))
+				)  
+				){
+			  ++i;
+		  }
+		  while(
+				  j < rightNum && (
+				  ((rightChildren.item(j) instanceof TextImpl) && ((TextImpl)rightChildren.item(j)).getNodeValue().trim().length() == 0) ||
+				  (!(rightChildren.item(j) instanceof TextImpl) && !(rightChildren.item(j) instanceof ElementImpl))
+				  )
+				){
+			  ++j;
+		  }
+		  
+		  if(i < leftNum && j < rightNum){
+			  Node left = leftChildren.item(i);
+			  Node right = rightChildren.item(j);
+			  if(!equals(left,right))
+				  return false;
+			  else{
+				  ++i;
+				  ++j;
+			  }
+		  }
+		  else if(i == leftNum && j == rightNum)
+			  return true;
+		  else
+			  return false;
+	  }
+	  while(i < leftNum){
+		  if(
+				  (leftChildren.item(i) instanceof ElementImpl) ||  
+				  ((leftChildren.item(i) instanceof TextImpl)
+					 && ((TextImpl)leftChildren.item(i)).getNodeValue().trim().length() != 0)
+			 )
+		  return false;
+	  }
+	  while(j < rightNum){
+		  if(
+				  (rightChildren.item(j) instanceof ElementImpl) ||  
+				  ((rightChildren.item(j) instanceof TextImpl)
+					 && ((TextImpl)rightChildren.item(j)).getNodeValue().trim().length() != 0)
+			 )
+		  return false;
+	  }
+	  return true;
   }
 }
