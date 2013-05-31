@@ -202,7 +202,7 @@ void FilterPrime() #void : {}
   (RelPath() <IS> RelPath()) #FilterIs
 | 
   LOOKAHEAD(RelPath())
-  RelPath()                //#FilterRelPath 
+  RelPath()                  #FilterRelPath 
 | 
   ("(" Filter() ")")         #FilterParen
 | 
