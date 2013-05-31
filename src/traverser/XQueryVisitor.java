@@ -44,6 +44,8 @@ import parser.XQueryParserVisitor;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.apache.xerces.dom.ElementImpl;
 import org.apache.xerces.dom.TextImpl;
@@ -58,171 +60,88 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
 public class XQueryVisitor implements XQueryParserVisitor {
-	
-	Document root;
-	
 
 	@Override
 	public Object visit(SimpleNode node, Object data) {
 		// TODO Auto-generated method stub
+		System.err.println("you should not come here!");
+		System.exit(1);
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTStart node, Object data) {
 		// TODO Auto-generated method stub
-	//	node.jjtGetChild(0).jjtGetChild(0).jjtAccept(this, data);
+		int numOfChild = node.jjtGetNumChildren();
+		if (numOfChild == 0) {
+			System.err.println("[Start]: error");
+			System.exit(1);
+		}
 		
-		if(node.jjtGetNumChildren() != 0)
-			data = node.jjtGetChild(0).jjtAccept(this, data);
-	//	ArrayList<Node> init = new ArrayList<Node>();
-	//	init.add(root);
-	//	node.jjtGetChild(0).jjtAccept(this, init);
-		return data;
+	  return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
 	@Override
 	public Object visit(ASTDoc node, Object data) {
 		// TODO Auto-generated method stub
-		DOMParser parser = new DOMParser();
-		try {
-			parser.setFeature("http://apache.org/xml/features/dom/defer-node-expansion", true);
-			parser.setFeature("http://xml.org/sax/features/validation", false);
-			parser.setFeature("http://xml.org/sax/features/namespaces", true);
-			parser.setFeature("http://apache.org/xml/features/validation/schema", true);
-			parser.setFeature("http://apache.org/xml/features/validation/schema-full-checking", false);
-			parser.setFeature("http://apache.org/xml/features/dom/include-ignorable-whitespace", false);
-			
-			String filePath = node.fileName.substring(1, node.fileName.length()-1);
-			parser.parse(filePath);
-
-		} catch (SAXNotRecognizedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SAXNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		data = parser.getDocument();
-		ArrayList<Node> init = new ArrayList<Node>();
-		init.add((Node) data);
-		return init;
+		return root(node.fileName);
 	}
 
 	@Override
 	// doc(filename)/rp
 	public Object visit(ASTAbsSlash node, Object data) {
 		// TODO Auto-generated method stub
-		ArrayList<Node> resultSet = new ArrayList<Node>();
-		
+		int numOfChild = node.jjtGetNumChildren();
+		if (numOfChild != 2) {
+			System.err.println("[AbsSlash] Error: AbsSlash must have 2 children.");
+			System.exit(1);
+		}
+				
 		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
 		
 		data = left.jjtAccept(this, data);
+		data = right.jjtAccept(this, data); 
 		
-		for(Node n: (ArrayList<Node>) data){	
-			NodeList nodelist = n.getChildNodes();
-			int num = nodelist.getLength();
-			for(int i = 0; i < num; ++i){
-				Node cur = nodelist.item(i);
-				if (cur instanceof ElementImpl) {
-					resultSet.add(cur);
-				} else {
-					System.out.println("hahaha");
-				}
-			}
-		}
-		
-		resultSet = (ArrayList<Node>) right.jjtAccept(this, resultSet);
-		
-		return resultSet;
+		return data;
 	}
 
 	@Override
 	public Object visit(ASTAbsDSlash node, Object data) {
 		// TODO Auto-generated method stub
-//		node.childrenAccept(this, data);
-		
 		
 		ArrayList<Node> resultSet = new ArrayList<Node>();
-		data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
-		
-		SimpleNode second = (SimpleNode) node.jjtGetChild(1);
-		
-/*		if(second instanceof ASTStar){
-			for(Node n: (ArrayList<Node>)data){
-				NodeList children = n.getChildNodes();
-				int l = children.getLength();
-				for(int i = 0; i < l; ++i){
-					resultSet.add(children.item(i));
-				}		
-			}			
-		}
-		else if(second instanceof ASTDdot){
-			for(Node n: seq){	
-				resultSet.add(n.getParentNode());	
-			}
-		}
-		else if(second instanceof ASTDdot){
-			for(Node n: seq){	
-				resultSet.add(n.getParentNode());	
-			}
-		}
-		SimpleNode leftMost = findLeftMost(node);
-		
-		String nodeName = (String) .tagName;*/
-		
+		data = node.jjtGetChild(0).jjtAccept(this, data);
 
-		for(Node n: (ArrayList<Node>) data){	
-			resultSet = getDescendants(n, resultSet);
-			/*NodeList decs = ((Element)n).getElementsByTagName(nodeName);
-			int l = decs.getLength();
-			for(int i = 0; i < l; ++i){
-				if(!resultSet.contains(decs.item(i))){
-					System.out.println(((Element)decs.item(i)).getTagName());
-					resultSet.add(decs.item(i));
-				}
-			}		*/
+		resultSet.addAll((ArrayList<Node>) data);
+		for(Node n: (ArrayList<Node>) data){
+			ArrayList<Node> descendants = new ArrayList<Node> ();
+			descendants = getDescendants(n, descendants);
+			resultSet.addAll(descendants);
 		}
-		resultSet = (ArrayList<Node>) second.jjtAccept(this, resultSet);
-		return resultSet;
+		
+		resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, resultSet);
+				
+		return data = unique(resultSet);
 	}
 
 	@Override
 	public Object visit(ASTRelSlash node, Object data) {
 		// TODO Auto-generated method stub
-		ArrayList<Node> resultSet = new ArrayList<Node>();
-		
 		int childNum = node.jjtGetNumChildren();
-		
-		SimpleNode second;
-		if (childNum > 1) {
-			data = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
-			second = (SimpleNode) node.jjtGetChild(1);
-		} else {
-			second = (SimpleNode) node.jjtGetChild(0);
+
+		if (childNum == 0) {
+			System.out.println("[RelSlash] Error: 0 child.");
+			System.exit(1);
 		}
 		
-		for(Node n: (ArrayList<Node>) data){	
-			NodeList nodelist = n.getChildNodes();
-			int num = nodelist.getLength();
-			for(int i = 0; i < num; ++i){
-				Node cur = nodelist.item(i);
-				if (cur instanceof ElementImpl)
-				{
-					resultSet.add(cur);
-				}			
-			}			
-		}
-		resultSet = (ArrayList<Node>) second.jjtAccept(this, resultSet);
-		return resultSet;
+		ArrayList<Node> resultSet = null;
+		resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, resultSet);
+		
+		data  = unique(resultSet);
+		
+		return data;
 	}
 
 	@Override
@@ -240,13 +159,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			second = (SimpleNode) node.jjtGetChild(0);
 		}
 		
-		for(Node n: (ArrayList<Node>) data){	
+		for(Node n: (ArrayList<Node>) data){
 			resultSet = getDescendants(n, resultSet);	
 		}
 		
 		resultSet = (ArrayList<Node>) second.jjtAccept(this, resultSet);
 		
-		return resultSet;
+		return unique(resultSet);
 	}
 
 	@Override
@@ -295,24 +214,42 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		left = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
 		right = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, data);
 		
-		for (Node n : right)
-			left.add(n);
-		
-		return left;
+		return concat(left, right);
 	}
 
 	@Override
 	public Object visit(ASTRelComma node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Node> left = new ArrayList<Node>();
+		ArrayList<Node> right = new ArrayList<Node>();
+		
+		left = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		right = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, data);
+		
+		return concat(left, right);
 	}
 
 	@Override
 	public Object visit(ASTStar node, Object data) {
 		// TODO Auto-generated method stub
-		if(node.jjtGetNumChildren() != 0)
-			data = node.jjtGetChild(0).jjtAccept(this, data);
-		return data;
+		int numOfChild = node.jjtGetNumChildren();
+		if (numOfChild != 0) {
+			System.err.println("[Star] Error: star is not leaf.");
+		}
+
+		ArrayList<Node> resultSet = new ArrayList<Node> ();
+		
+		ArrayList<Node> nodeList = (ArrayList<Node>) data;
+		for (Node n : nodeList) {
+			NodeList children = n.getChildNodes();
+			int numOfChildren = children.getLength();
+			for (int i = 0; i < numOfChildren; i++) {
+				if (children.item(i) instanceof ElementImpl)
+					resultSet.add(children.item(i));
+			}
+		}
+		
+		return resultSet;
 	}
 
 	@Override
@@ -330,32 +267,51 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			resultSet.add(n.getParentNode());
 		}
 		
-		return resultSet;
+		return data = resultSet;
 	}
 
 	@Override
+	//TODO figure out what to return
 	public Object visit(ASTText node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Node> resultSet = new ArrayList<Node> ();
+		
+		for (Node n : (ArrayList<Node>) data) {
+			resultSet.add(n.getFirstChild());
+		}
+		
+		data = resultSet;
+		
+		return data;
 	}
 
 	@Override
 	public Object visit(ASTParen node, Object data) {
 		// TODO Auto-generated method stub
-		return data;
+		int numOfChild = node.jjtGetNumChildren();
+		
+		//TODO check numOfChild;
+		return node.childrenAccept(this, data);
 	}
 
 	@Override
 	public Object visit(ASTTagName node, Object data) {
 		// TODO Auto-generated method stub
+		int numOfChild = node.jjtGetNumChildren();
+	  //TODO check numOfChild;
 		ArrayList<Node> resultSet = new ArrayList<Node>();
-		for(Node n: (ArrayList<Node>)data){
-		String name = n.getNodeName();
-			if(name.equals(node.tagName)){
-				resultSet.add(n);
+		
+		ArrayList<Node> nodeList = (ArrayList<Node>) data;
+		for (Node n : nodeList) {
+			NodeList children = n.getChildNodes();
+			int numOfChildren = children.getLength();
+			for (int i = 0; i < numOfChildren; i++) {
+				if (children.item(i).getNodeName().equals(node.tagName))
+					resultSet.add(children.item(i));
 			}
 		}
-		return resultSet;
+		
+		return data = resultSet;
 	}
 
 	@Override
@@ -427,7 +383,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTFilterParen node, Object data) {
 		// TODO Auto-generated method stub
-		return data;
+		int numOfChild = node.jjtGetNumChildren();
+		
+		//TODO check numOfChild;
+		return node.childrenAccept(this, data);
 	}
 
 	@Override
@@ -558,21 +517,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		return null;
 	}
 	
-	SimpleNode findLeftMost(SimpleNode node){
-		if(((SimpleNode) node).jjtGetNumChildren() != 0)
-			return findLeftMost((SimpleNode)node.jjtGetChild(0));
-		return node;
-	}
-	
-/*	void addNodes(Node n, ArrayList<Node> result){
-		NodeList nodelist = n.getChildNodes();
-		int l = nodelist.getLength();
-		for(int i = 0; i < l; ++i){
-			result.add(nodelist.item(i));
-			addNodes(nodelist.item(i), result);
-		}
-	}*/
-	
 	ArrayList<Node> getDescendants(Node n, ArrayList<Node> result){
 		NodeList nodelist = n.getChildNodes();
 		int num = nodelist.getLength();
@@ -586,5 +530,53 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			}			
 		}
 		return result;
+	}
+	
+	ArrayList<Node> root(String fileName) {
+		DOMParser parser = new DOMParser();
+		try {
+			parser.setFeature("http://apache.org/xml/features/dom/defer-node-expansion", true);
+			parser.setFeature("http://xml.org/sax/features/validation", false);
+			parser.setFeature("http://xml.org/sax/features/namespaces", true);
+			parser.setFeature("http://apache.org/xml/features/validation/schema", true);
+			parser.setFeature("http://apache.org/xml/features/validation/schema-full-checking", false);
+			parser.setFeature("http://apache.org/xml/features/dom/include-ignorable-whitespace", false);
+			
+			String filePath = fileName.substring(1, fileName.length()-1);
+			parser.parse(filePath);
+
+		} catch (SAXNotRecognizedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Document document = parser.getDocument();
+		
+		ArrayList<Node> root = new ArrayList<Node>();
+		root.add(document.getFirstChild());
+
+		return root;
+	}
+		
+	ArrayList<Node> unique(ArrayList<Node> list) {
+		HashSet<Node> set = new HashSet<Node>(list);
+		list.clear();
+		list.addAll(set);
+		return list;
+	}
+	
+	ArrayList<Node> concat(ArrayList<Node> lhs, ArrayList<Node> rhs) {
+		for (Node n : rhs)
+			lhs.add(n);
+		return lhs;
 	}
 }
