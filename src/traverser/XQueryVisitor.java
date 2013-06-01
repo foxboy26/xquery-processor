@@ -3,7 +3,6 @@ package traverser;
 import parser.ASTAbsDSlash;
 import parser.ASTAbsSlash;
 import parser.ASTAssign;
-import parser.ASTComma;
 import parser.ASTCondAnd;
 import parser.ASTCondEmpty;
 import parser.ASTCondEq;
@@ -47,9 +46,7 @@ import parser.XQueryParserVisitor;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.dom.ElementImpl;
@@ -80,11 +77,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTStart node, Object data) {
 		// TODO Auto-generated method stub
-		int numOfChild = node.jjtGetNumChildren();
-		if (numOfChild == 0) {
-			System.err.println("[Start]: error");
-			System.exit(1);
-		}
+		checkNumOfChildren(node, 1, "[Start]");
 		
 	  return node.jjtGetChild(0).jjtAccept(this, data);
 	}
@@ -92,6 +85,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTDoc node, Object data) {
 		// TODO Auto-generated method stub
+		checkNumOfChildren(node, 0, "[Doc]");
+		
 		return root(node.fileName);
 	}
 
@@ -99,20 +94,15 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	// doc(filename)/rp
 	public Object visit(ASTAbsSlash node, Object data) {
 		// TODO Auto-generated method stub
-		int numOfChild = node.jjtGetNumChildren();
-		if (numOfChild != 2) {
-			System.err.println("[AbsSlash] Error: AbsSlash must have 2 children.");
-			System.exit(1);
-		}
+		checkNumOfChildren(node, 2, "[AbsSlash]");
 				
 		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
 		
-		data = left.jjtAccept(this, data);
-				
-		data = right.jjtAccept(this, data); 
+		ArrayList<Node> resultSet = (ArrayList<Node>) left.jjtAccept(this, data);
+		resultSet = (ArrayList<Node>) right.jjtAccept(this, resultSet); 
 		
-		return data;
+		return resultSet;
 	}
 
 	@Override
@@ -130,14 +120,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		
 		resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, resultSet);
 				
-		return data = unique(resultSet);
+		return unique(resultSet);
 	}
 
 	@Override
 	public Object visit(ASTRelSlash node, Object data) {
 		// TODO Auto-generated method stub
 		int childNum = node.jjtGetNumChildren();
-
 		if (childNum == 0) {
 			System.out.println("[RelSlash] Error: 0 child.");
 			System.exit(1);
@@ -147,9 +136,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
 		resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, resultSet);
 		
-		data  = unique(resultSet);
-		
-		return data;
+		return unique(resultSet);
 	}
 
 	@Override
@@ -175,7 +162,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		if (childNum == 2)
 			resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, resultSet);
 		
-		return data = unique(resultSet);
+		return unique(resultSet);
 	}
 
 	@Override
@@ -273,7 +260,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			resultSet.add(n.getParentNode());
 		}
 		
-		return data = resultSet;
+		return resultSet;
 	}
 
 	@Override
@@ -285,17 +272,14 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		for (Node n : (ArrayList<Node>) data) {
 			resultSet.add(n.getFirstChild());
 		}
-		
-		data = resultSet;
-		
-		return data;
+
+		return resultSet;
 	}
 
 	@Override
 	public Object visit(ASTParen node, Object data) {
 		// TODO Auto-generated method stub
-		int numOfChild = node.jjtGetNumChildren();
-		
+		checkNumOfChildren(node, 1, "[Paren]");
 		//TODO check numOfChild;
 		return node.childrenAccept(this, data);
 	}
@@ -303,11 +287,11 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTTagName node, Object data) {
 		// TODO Auto-generated method stub
-		int numOfChild = node.jjtGetNumChildren();
-	  //TODO check numOfChild;
+		checkNumOfChildren(node, 0, "TagName");
+		
+		ArrayList<Node> nodeList = (ArrayList<Node>) data;
 		ArrayList<Node> resultSet = new ArrayList<Node>();
 				
-		ArrayList<Node> nodeList = (ArrayList<Node>) data;
 		for (Node n : nodeList) {
 			NodeList children = n.getChildNodes();
 			int numOfChildren = children.getLength();
@@ -317,12 +301,14 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			}
 		}
 		
-		return data = resultSet;
+		return resultSet;
 	}
 
 	@Override
   public Object visit(ASTFilterRelPath node, Object data) {
 	  // TODO Auto-generated method stub
+		checkNumOfChildren(node, 1, "FilterRelPath");
+		
 		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
 	  return resultSet.size() > 0;
   }
@@ -330,6 +316,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTFilterAnd node, Object data) {
 		// TODO Auto-generated method stub
+		checkNumOfChildren(node, 2, "FilterAnd");
+
 		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
 		
@@ -342,6 +330,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTFilterOr node, Object data) {
 		// TODO Auto-generated method stub
+		checkNumOfChildren(node, 2, "FilterOr");
+
 		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
 		
@@ -354,20 +344,18 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTFilterEq node, Object data) {
 		// TODO Auto-generated method stub
+		checkNumOfChildren(node, 2, "FilterEq");
+
 		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
     
 		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, data);
 		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, data);
 
-    //TODO: change equal function later.
-    for (Node l : leftRes) {
-      for (Node r : rightRes) {
-        if (equals(l,r)) {
+    for (Node l : leftRes)
+      for (Node r : rightRes)
+        if (equals(l,r))
           return true;
-        }
-      }
-    }
 
 		return false;
 	}
@@ -375,20 +363,18 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTFilterIs node, Object data) {
 		// TODO Auto-generated method stub
+		checkNumOfChildren(node, 2, "FilterIs");
+
 		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
     
 		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, data);
 		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, data);
 
-    //TODO: change equal function later.
-    for (Node l : leftRes) {
-      for (Node r : rightRes) {
-        if (l == r) {
+    for (Node l : leftRes)
+      for (Node r : rightRes)
+        if (l == r)
           return true;
-        }
-      }
-    }
 
 		return false;
 	}
@@ -396,29 +382,20 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTFilterParen node, Object data) {
 		// TODO Auto-generated method stub
-		int numOfChild = node.jjtGetNumChildren();
+		checkNumOfChildren(node, 1, "FilterParen");
 		
-		//TODO check numOfChild;
 		return node.childrenAccept(this, data);
 	}
 
 	@Override
 	public Object visit(ASTFilterNot node, Object data) {
 		// TODO Auto-generated method stub
-		SimpleNode leaf = (SimpleNode) node.jjtGetChild(0);
+		checkNumOfChildren(node, 2, "FilterNot");
 		
-		Boolean leafRes = (Boolean) leaf.jjtAccept(this, data);
+		Boolean leafRes = (Boolean) node.jjtGetChild(0).jjtAccept(this, data);
 		
 		return !leafRes;
 	}
-
-	
-	
-	
-	
-	
-	
-	
 	
 	@Override
 	public Object visit(ASTForClause node, Object data) {
@@ -570,14 +547,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, context);
 		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, context);
 
-    //TODO: change equal function later.
-    for (Node l : leftRes) {
-      for (Node r : rightRes) {
-        if (l.equals(r)) {
+    for (Node l : leftRes)
+      for (Node r : rightRes)
+        if (l.equals(r))
           return true;
-        }
-      }
-    }
 
 		return false;
 	}
@@ -592,13 +565,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, context);
 		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, context);
 
-		for (Node l : leftRes) {
-      for (Node r : rightRes) {
-        if (l == r) {
+		for (Node l : leftRes)
+      for (Node r : rightRes)
+        if (l == r)
           return true;
-        }
-      }
-    }
 
 		return false;
 	}
@@ -659,7 +629,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	
 	@Override
 	public Object visit(ASTString node, Object data) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub		
 		checkNumOfChildren(node, 0, "[String]");
 		
 		Document doc = new DocumentImpl();
@@ -680,14 +650,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		
 		Document doc = new DocumentImpl();
 		Element newTag = doc.createElement(node.tagName);
-		
 		for (Node n : resultSet) {
-			newTag.appendChild(n);
+			newTag.appendChild(createNode(doc, n));
 		}
-		
+
 		resultSet.clear();
 		resultSet.add(newTag);
-		
+			
 		return resultSet;
 	}
 
@@ -700,7 +669,12 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTLX node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		checkNumOfChildren(node, 2, "[LX]");
+		
+		Context context = (Context) data;
+		Context newContext = (Context) node.jjtGetChild(0).jjtAccept(this, context);
+		
+		return node.jjtAccept(this, newContext);
 	}
 	
 	ArrayList<Node> getDescendants(Node n, ArrayList<Node> result){
@@ -841,5 +815,21 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		if (numOfChild != num) {
 			System.err.println("Error: " + errMsg + " should have " + num + " children, but only have " + numOfChild);
 		}
+  }
+  
+  public Node createNode(Document doc, Node n) {
+  	Node newNode = null;
+  	if (n instanceof ElementImpl)
+  		newNode = doc.createElement(((ElementImpl) n).getTagName());
+  	else if (n instanceof TextImpl && n.getNodeValue().trim().length() > 0)
+  		newNode = doc.createTextNode(n.getNodeValue());
+  	
+  	NodeList children = n.getChildNodes();
+  	for (int i = 0; i < children.getLength(); i++) {
+  		Node child = createNode(doc, children.item(i));
+  		newNode.appendChild(child);
+  	}
+  	
+  	return newNode;
   }
 }
