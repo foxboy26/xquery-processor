@@ -1,2 +1,2 @@
-for $a in doc("test.xml")/catalog/book/author, $b in doc("test.xml")/catalog/book
+for $a in doc("test.xml")/catalog/book, $b in doc("test.xml")/catalog/book
 return $a,$b
