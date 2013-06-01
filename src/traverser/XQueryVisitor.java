@@ -420,20 +420,42 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTForClause node, Object data) {
 		// TODO Auto-generated method stub
+		int numOfChild = node.jjtGetNumChildren();
 		
-		return null;
+		Context context = (Context) data;
+		for (int i = 0; i < numOfChild; i++) {
+			context = (Context) node.jjtGetChild(i).jjtAccept(this, context);
+		}
+		
+		return context;
 	}
 
 	@Override
 	public Object visit(ASTIn node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		checkNumOfChildren(node, 2, "[Assign]");
+		
+		Context context = (Context) data;
+		ASTVar varNode = (ASTVar) node.jjtGetChild(0);
+		
+		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, context); 
+				
+	  Context newContext = context.add(varNode.varName, resultSet);
+		
+		return newContext;
 	}
 
 	@Override
 	public Object visit(ASTLetClause node, Object data) {
 		// TODO Auto-generated method stub
-		return null;
+		int numOfChild = node.jjtGetNumChildren();
+		
+		Context context = (Context) data;
+		for (int i = 0; i < numOfChild; i++) {
+			context = (Context) node.jjtGetChild(i).jjtAccept(this, context);
+		}
+		
+		return context;
 	}
 
 	@Override
@@ -443,11 +465,12 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		
 		Context context = (Context) data;
 		ASTVar varNode = (ASTVar) node.jjtGetChild(0);
+		
 		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, context); 
 				
-	  context.add(varNode.varName, resultSet);
+	  Context newContext = context.add(varNode.varName, resultSet);
 		
-		return context;
+		return newContext;
 	}
 
 	@Override
@@ -496,8 +519,9 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
     
-		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, data);
-		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, data);
+		Context context = (Context) data;
+		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, context);
+		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, context);
 
     //TODO: change equal function later.
     for (Node l : leftRes) {
@@ -517,8 +541,9 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		SimpleNode left = (SimpleNode) node.jjtGetChild(0);
 		SimpleNode right = (SimpleNode) node.jjtGetChild(1);
     
-		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, data);
-		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, data);
+		Context context = (Context) data;
+		ArrayList<Node> leftRes = (ArrayList<Node>) left.jjtAccept(this, context);
+		ArrayList<Node> rightRes = (ArrayList<Node>) right.jjtAccept(this, context);
 
 		for (Node l : leftRes) {
       for (Node r : rightRes) {
@@ -534,7 +559,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTCondEmpty node, Object data) {
 		// TODO Auto-generated method stub
-		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		Context context = (Context) data;
+		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, context);
 		return resultSet.isEmpty();
 	}
 
@@ -603,7 +629,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		checkNumOfChildren(node, 1, "[Newtag]");
 		
 		Context context = (Context) data;
-		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, context);
 		
 		Document doc = new DocumentImpl();
 		Element newTag = doc.createElement(node.tagName);
@@ -622,6 +648,35 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTFLWR node, Object data) {
 		// TODO Auto-generated method stub
 		node.childrenAccept(this, data);
+		
+		// get all var list from let clause
+		// expand context by let
+		// use eval to form n-for loop and in the inner most use where to evaluate
+		// the result 
+		
+		
+		/*in 
+		
+		ArrayList<ArrayList<Node>> a;
+		
+		numOfVAr
+		
+		ArrayList<Node> context is empty
+		
+		eval(context, totalLength, level) {
+			if totla == level {
+				// cond(context) 
+				
+			}
+			
+			current var
+			for (int i = 0; i < a.get(level); i++) {
+				add to context a.get(level).get(i)
+				eval(context, total, level+1);
+				remove from context;
+			}
+		}*/
+		
 		return null;
 	}
 
