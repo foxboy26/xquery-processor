@@ -16,13 +16,13 @@ public class Context {
 	
 	public Context add(String varName, ArrayList<Node> value) {
 		
-		Context old = new Context();
+		Context newContext = new Context();
 		
-		old.c.putAll(this.c);
+		newContext.c.putAll(this.c);
 				
-		c.put(varName, value);
+		newContext.c.put(varName, value);
 		
-		return old;
+		return newContext;
 	}
 	
 	public ArrayList<Node> find(String varName) {
