@@ -9,7 +9,6 @@
       <description>An in-depth look at creating applications 
       with XML.</description>
    </book>
-   <test>
 	   <book>
       <author>Gambardella, Matthew</author>
       <title>XML Developer's Guide</title>
@@ -19,5 +18,4 @@
       <description>An in-depth look at creating applications 
       with XML.</description>
    	  </book>
-	</test>
 </catalog>

@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.dom.ElementImpl;
@@ -65,6 +66,8 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
 public class XQueryVisitor implements XQueryParserVisitor {
+	
+	public ArrayList<Node> finalSet = new ArrayList<Node>();
 
 	@Override
 	public Object visit(SimpleNode node, Object data) {
@@ -420,42 +423,61 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTForClause node, Object data) {
 		// TODO Auto-generated method stub
-		int numOfChild = node.jjtGetNumChildren();
 		
 		Context context = (Context) data;
-		for (int i = 0; i < numOfChild; i++) {
-			context = (Context) node.jjtGetChild(i).jjtAccept(this, context);
-		}
-		
-		return context;
+		return node.jjtGetChild(0).jjtAccept(this, context);
 	}
 
 	@Override
 	public Object visit(ASTIn node, Object data) {
 		// TODO Auto-generated method stub
-		checkNumOfChildren(node, 2, "[Assign]");
+		checkNumOfChildren(node, 2, "[In]");
 		
 		Context context = (Context) data;
 		ASTVar varNode = (ASTVar) node.jjtGetChild(0);
 		
 		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, context); 
 				
-	  Context newContext = context.add(varNode.varName, resultSet);
+		//Context newContext = context.add(varNode.varName, resultSet);
+		int size = resultSet.size();
 		
-		return newContext;
+		
+		
+		
+		for(int i = 0; i < size; ++i){
+			ArrayList<Node> value = new ArrayList<Node>();
+			
+			value.add(resultSet.get(i));
+			Context newContext = context.add(varNode.varName, value);
+			//Find out the index if current node
+			SimpleNode parent = (SimpleNode) ((SimpleNode)node).jjtGetParent();
+			int childNum = ((SimpleNode)parent).jjtGetNumChildren();
+			int j = 0;
+			for(;j < childNum; ++j){
+				if(((SimpleNode)parent).jjtGetChild(j) == node)
+					break;
+			}
+			if(j != childNum-1){
+				++j;
+				((SimpleNode)parent).jjtGetChild(j).jjtAccept(this, newContext);
+					
+			}
+			else{
+				//FLWR
+				SimpleNode grandParent = (SimpleNode) ((SimpleNode)node).jjtGetParent().jjtGetParent();
+				grandParent.jjtGetChild(1).jjtAccept(this, newContext);
+			}
+			
+		}
+		return null;
 	}
 
 	@Override
 	public Object visit(ASTLetClause node, Object data) {
 		// TODO Auto-generated method stub
-		int numOfChild = node.jjtGetNumChildren();
+		Context context = (Context)data;
+		return (Context) node.jjtGetChild(0).jjtAccept(this, context);
 		
-		Context context = (Context) data;
-		for (int i = 0; i < numOfChild; i++) {
-			context = (Context) node.jjtGetChild(i).jjtAccept(this, context);
-		}
-		
-		return context;
 	}
 
 	@Override
@@ -467,18 +489,42 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		ASTVar varNode = (ASTVar) node.jjtGetChild(0);
 		
 		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, context); 
-				
-	  Context newContext = context.add(varNode.varName, resultSet);
-		
-		return newContext;
+	    
+		Context newContext = context.add(varNode.varName, resultSet);
+
+	  		
+		//Find out the index if current node
+		SimpleNode parent = (SimpleNode) ((SimpleNode)node).jjtGetParent();
+		int childNum = ((SimpleNode)parent).jjtGetNumChildren();
+		int j = 0;
+		for(;j < childNum; ++j){
+			if(((SimpleNode)parent).jjtGetChild(j) == node)
+				break;
+		}
+		if(j != childNum - 1){
+			++j;
+			((SimpleNode)parent).jjtGetChild(j).jjtAccept(this, newContext);
+		}
+		else{
+			//FLWR
+			SimpleNode grandParent = (SimpleNode) ((SimpleNode)node).jjtGetParent().jjtGetParent();
+			grandParent.jjtGetChild(2).jjtAccept(this, newContext);
+		}	
+		return null;
 	}
 
 	@Override
 	public Object visit(ASTWhereClause node, Object data) {
 		// TODO Auto-generated method stub
 		checkNumOfChildren(node, 1, "[WhereClause]");
-		
-		return node.jjtGetChild(0).jjtAccept(this, data);
+		Context context = (Context)data;
+		Boolean b = (Boolean) node.jjtGetChild(0).jjtAccept(this, data);
+		if(b){
+			SimpleNode parent = (SimpleNode) ((SimpleNode)node).jjtGetParent();
+			int childNum = parent.jjtGetNumChildren();
+			return parent.jjtGetChild(childNum-1).jjtAccept(this, context);
+		}
+		return null;		
 	}
 
 	@Override
@@ -486,7 +532,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		// TODO Auto-generated method stub		
 		checkNumOfChildren(node, 1, "[ReturnClause]");
 		
-		return node.jjtGetChild(0).jjtAccept(this, data);
+		finalSet.addAll((ArrayList<Node>)node.jjtGetChild(0).jjtAccept(this, data));
+		return null;
 	}
 
 	@Override
@@ -647,37 +694,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTFLWR node, Object data) {
 		// TODO Auto-generated method stub
-		node.childrenAccept(this, data);
-		
-		// get all var list from let clause
-		// expand context by let
-		// use eval to form n-for loop and in the inner most use where to evaluate
-		// the result 
-		
-		
-		/*in 
-		
-		ArrayList<ArrayList<Node>> a;
-		
-		numOfVAr
-		
-		ArrayList<Node> context is empty
-		
-		eval(context, totalLength, level) {
-			if totla == level {
-				// cond(context) 
-				
-			}
-			
-			current var
-			for (int i = 0; i < a.get(level); i++) {
-				add to context a.get(level).get(i)
-				eval(context, total, level+1);
-				remove from context;
-			}
-		}*/
-		
-		return null;
+		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
 	@Override
@@ -743,9 +760,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	}
 	
 	ArrayList<Node> concat(ArrayList<Node> lhs, ArrayList<Node> rhs) {
-		for (Node n : rhs)
-			lhs.add(n);
-		return lhs;
+		ArrayList<Node> re = new ArrayList<Node>();
+		re.addAll(lhs);
+		re.addAll(rhs);
+		return re;
 	}
 	
   public boolean equals(Node lhs, Node rhs){

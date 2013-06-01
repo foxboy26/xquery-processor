@@ -27,15 +27,19 @@ public class Coordinator {
 		XQueryParser t;
 		try {
 			t = new XQueryParser(new FileInputStream(new File("xpath.txt")));
+			Context context = new Context();
 			ASTStart n = t.Start();
 			n.dump(">");
 			
+			XQueryParserVisitor visitor = new XQueryVisitor();
+			n.jjtAccept(visitor, context);
+			System.out.println();
+			
 			System.out.println("Result:");
+
+			print(((XQueryVisitor)visitor).finalSet);
 			
-			ArrayList<Node> resultSet = new ArrayList<Node>();			
-			resultSet = (ArrayList<Node>) n.jjtAccept(new XQueryVisitor(), resultSet);
-			print(resultSet);
-			
+
 		} catch (Exception e) {
 			System.out.println("Oops.");
 			System.out.println(e.getMessage());
