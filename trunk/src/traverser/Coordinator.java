@@ -32,8 +32,7 @@ public class Coordinator {
 			System.out.println("Result:");
 			
 			ArrayList<Node> resultSet = new ArrayList<Node>();			
-			XQueryParserVisitor visitor = new XQueryVisitor();
-			resultSet = (ArrayList<Node>) n.jjtAccept(visitor, resultSet);
+			resultSet = (ArrayList<Node>) n.jjtAccept(new XQueryVisitor(), resultSet);
 			print(resultSet);
 			
 		} catch (Exception e) {
