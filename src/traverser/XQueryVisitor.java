@@ -434,24 +434,21 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			
 			value.add(resultSet.get(i));
 			Context newContext = context.add(varNode.varName, value);
-			
-/*//			SimpleNode parent = (SimpleNode) ((SimpleNode)node).jjtGetParent();
-//			int childNum = ((SimpleNode)parent).jjtGetNumChildren();
-//			int j = 0;
-			for(;j < childNum; ++j){
-				if(((SimpleNode)parent).jjtGetChild(j) == node)
-					break;
-			}*/
-			
-			
+						
 			if(index != childNum-1){
 				((SimpleNode)parent).jjtGetChild(index+1).jjtAccept(this, newContext);
 					
 			}
 			else{
 				//FLWR
-				SimpleNode grandParent = (SimpleNode) ((SimpleNode)node).jjtGetParent().jjtGetParent();
-				grandParent.jjtGetChild(1).jjtAccept(this, newContext);
+				if(parent instanceof ASTForClause){
+					SimpleNode grandParent = (SimpleNode) ((SimpleNode)node).jjtGetParent().jjtGetParent();
+					grandParent.jjtGetChild(1).jjtAccept(this, newContext);
+				}
+				//CondSome
+				else{
+					
+				}
 			}
 			
 		}
@@ -487,14 +484,14 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		//Find out the index if current node
 		SimpleNode parent = (SimpleNode) ((SimpleNode)node).jjtGetParent();
 		int childNum = ((SimpleNode)parent).jjtGetNumChildren();
-		int j = 0;
-		for(;j < childNum; ++j){
-			if(((SimpleNode)parent).jjtGetChild(j) == node)
+		int index = 0;
+		for(;index < childNum; ++index){
+			if(((SimpleNode)parent).jjtGetChild(index) == node)
 				break;
 		}
-		if(j != childNum - 1){
-			++j;
-			((SimpleNode)parent).jjtGetChild(j).jjtAccept(this, newContext);
+		if(index != childNum - 1){
+			++index;
+			((SimpleNode)parent).jjtGetChild(index).jjtAccept(this, newContext);
 		}
 		else{
 			//FLWR
