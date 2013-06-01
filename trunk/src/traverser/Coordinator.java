@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 
 import org.apache.xerces.dom.DocumentImpl;
+import org.apache.xerces.dom.ElementImpl;
 import org.apache.xml.serialize.Method;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
@@ -49,11 +50,17 @@ public class Coordinator {
 		for (Node n : result) {
 			try {
 				if (first) {
-		      serializer.serialize((Element) n);
-		    	first = false;
+					if (n instanceof DocumentImpl)
+						serializer.serialize((Document) n);
+					else if (n instanceof ElementImpl)
+						serializer.serialize((Element) n);
+					first = false;
 				} else {
 					System.out.println("------------------------");
-		      serializer.serialize((Element) n);
+					if (n instanceof DocumentImpl)
+						serializer.serialize((Document) n);
+					else if (n instanceof ElementImpl)
+						serializer.serialize((Element) n);
 				}
       } catch (IOException e) {
 	      // TODO Auto-generated catch block
