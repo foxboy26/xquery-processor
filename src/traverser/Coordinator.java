@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 
 import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.dom.ElementImpl;
+import org.apache.xerces.dom.TextImpl;
 import org.apache.xml.serialize.Method;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
@@ -38,8 +38,6 @@ public class Coordinator {
 			System.out.println("Result:");
 
 			print(result);
-			
-
 		} catch (Exception e) {
 			System.out.println("Oops.");
 			System.out.println(e.getMessage());
@@ -65,6 +63,8 @@ public class Coordinator {
 						serializer.serialize((Document) n);
 					else if (n instanceof ElementImpl)
 						serializer.serialize((Element) n);
+					else if (n instanceof TextImpl)
+						System.out.println(n.getNodeValue());
 				}
       } catch (IOException e) {
 	      // TODO Auto-generated catch block
