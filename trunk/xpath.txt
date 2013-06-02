@@ -1,2 +1,3 @@
-for $a in doc("test.xml")/catalog/book, $b in doc("test.xml")/catalog/book
+for $a in doc("test.xml")/catalog, $b in doc("test.xml")/catalog/test/book
+where some $c in $a/book, $d in $b satisfies $c eq $d
 return $a,$b
