@@ -32,12 +32,12 @@ public class Coordinator {
 			n.dump(">");
 			
 			XQueryParserVisitor visitor = new XQueryVisitor();
-			ArrayList<Node> result = (ArrayList<Node>) n.jjtAccept(visitor, context);
+			ArrayList<Node> resultSet = (ArrayList<Node>) n.jjtAccept(visitor, context);
 			System.out.println();
 			
 			System.out.println("Result:");
-
-			print(result);
+			
+			print(resultSet);
 		} catch (Exception e) {
 			System.out.println("Oops.");
 			System.out.println(e.getMessage());
@@ -56,6 +56,8 @@ public class Coordinator {
 						serializer.serialize((Document) n);
 					else if (n instanceof ElementImpl)
 						serializer.serialize((Element) n);
+					else if (n instanceof TextImpl)
+						System.out.println(n.getNodeValue());
 					first = false;
 				} else {
 					System.out.println("------------------------");
