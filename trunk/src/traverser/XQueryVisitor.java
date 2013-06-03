@@ -31,7 +31,6 @@ import parser.ASTRelDSlash;
 import parser.ASTRelFilter;
 import parser.ASTRelSlash;
 import parser.ASTReturnClause;
-import parser.ASTSlash;
 import parser.ASTStar;
 import parser.ASTStart;
 import parser.ASTString;
@@ -286,8 +285,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTParen node, Object data) {
 		// TODO Auto-generated method stub
 		checkNumOfChildren(node, 1, "[Paren]");
-		// TODO check numOfChild;
-		return node.childrenAccept(this, data);
+		
+		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
 	@Override
@@ -393,7 +392,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		// TODO Auto-generated method stub
 		checkNumOfChildren(node, 1, "FilterParen");
 
-		return node.childrenAccept(this, data);
+		return node.jjtGetChild(0).jjtAccept(this, data);
 	}
 
 	@Override
@@ -547,6 +546,9 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			
 		finalSet.get(level).addAll((ArrayList<Node>) firstChild.jjtAccept(this,
 				data));
+		
+		printFinalSet("Return");
+		
 		return null;
 	}
 
@@ -662,9 +664,14 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		Context context = (Context) data;
 		ArrayList<Node> lhsResultSet = (ArrayList<Node>) node.jjtGetChild(0)
 				.jjtAccept(this, context);
+		
+		System.out.println("[XQueryComma] lhs: " + lhsResultSet);
+		
 		ArrayList<Node> rhsResultSet = (ArrayList<Node>) node.jjtGetChild(1)
 				.jjtAccept(this, context);
 
+		System.out.println("[XQueryComma] rhs: " + rhsResultSet);
+				
 		return concat(lhsResultSet, rhsResultSet);
 	}
 
@@ -714,6 +721,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			finalSet.get(level).clear();
 		
 		node.jjtGetChild(0).jjtAccept(this, data);
+		
+		printFinalSet("FLWR");
 		
 		return finalSet.get(level--);	
 	}
@@ -883,9 +892,16 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		NodeList children = n.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node child = createNode(doc, children.item(i));
-			newNode.appendChild(child);
+			if (child != null)
+				newNode.appendChild(child);
 		}
 
 		return newNode;
+	}
+	
+	private void printFinalSet(String tag) {
+		System.out.println("[" + tag + "] finalSet: ");
+		for (ArrayList<Node> list : finalSet)
+			System.out.println(list);
 	}
 }
