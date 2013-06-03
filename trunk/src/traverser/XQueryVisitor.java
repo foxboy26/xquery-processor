@@ -661,18 +661,26 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		// TODO Auto-generated method stub
 		checkNumOfChildren(node, 2, "[QueryComma]");
 
+		ArrayList<Node> resultSet = new ArrayList<Node> ();
+		
 		Context context = (Context) data;
 		ArrayList<Node> lhsResultSet = (ArrayList<Node>) node.jjtGetChild(0)
 				.jjtAccept(this, context);
-		
+
+		resultSet.addAll(lhsResultSet);
 		System.out.println("[XQueryComma] lhs: " + lhsResultSet);
+		
+		System.out.println("[XQueryComma] resultSet: " + resultSet);
 		
 		ArrayList<Node> rhsResultSet = (ArrayList<Node>) node.jjtGetChild(1)
 				.jjtAccept(this, context);
+		resultSet.addAll(rhsResultSet);
 
 		System.out.println("[XQueryComma] rhs: " + rhsResultSet);
-				
-		return concat(lhsResultSet, rhsResultSet);
+		
+		System.out.println("[XQueryComma] resultSet: " + resultSet);
+		
+		return resultSet;
 	}
 
 	@Override
