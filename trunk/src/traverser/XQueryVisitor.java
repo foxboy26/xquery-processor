@@ -63,9 +63,10 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
 public class XQueryVisitor implements XQueryParserVisitor {
-
-	public ArrayList<Node> finalSet = new ArrayList<Node>();
-
+	
+	private ArrayList<ArrayList<Node>> finalSet = new ArrayList<ArrayList<Node>>();
+	private int level = -1;
+	
 	@Override
 	public Object visit(SimpleNode node, Object data) {
 		// TODO Auto-generated method stub
@@ -78,8 +79,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTStart node, Object data) {
 		// TODO Auto-generated method stub
 		checkNumOfChildren(node, 1, "[Start]");
-
-		return node.jjtGetChild(0).jjtAccept(this, data);
+		SimpleNode firstChild = (SimpleNode) node.jjtGetChild(0);
+		ArrayList<Node> resultSet = (ArrayList<Node>) firstChild.jjtAccept(this, data);
+		
+		if(firstChild instanceof ASTFLWR)
+			return finalSet.get(0);
+		else 
+			return resultSet;
 	}
 
 	@Override
@@ -453,7 +459,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			}
 
 			if (index == 0)
-				return finalSet;
+				return finalSet.get(level);
 			return null;
 		} else {
 			for (int i = 0; i < size; ++i) {
@@ -532,10 +538,16 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTReturnClause node, Object data) {
 		// TODO Auto-generated method stub
 		checkNumOfChildren(node, 1, "[ReturnClause]");
-
-		finalSet.addAll((ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this,
+		SimpleNode firstChild = (SimpleNode) node.jjtGetChild(0);
+		
+		if(finalSet.size() <= level){
+			ArrayList<Node> curSet = new ArrayList<Node>();
+			finalSet.add(curSet);
+		}
+			
+		finalSet.get(level).addAll((ArrayList<Node>) firstChild.jjtAccept(this,
 				data));
-		return finalSet;
+		return null;
 	}
 
 	@Override
@@ -694,7 +706,16 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTFLWR node, Object data) {
 		// TODO Auto-generated method stub
-		return node.jjtGetChild(0).jjtAccept(this, data);
+		SimpleNode grandParent = (SimpleNode) node.jjtGetParent().jjtGetParent();
+		
+		++level;
+		
+		if(finalSet.size() > level)
+			finalSet.get(level).clear();
+		
+		node.jjtGetChild(0).jjtAccept(this, data);
+		
+		return finalSet.get(level--);	
 	}
 
 	@Override
@@ -773,8 +794,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 
 	ArrayList<Node> concat(ArrayList<Node> lhs, ArrayList<Node> rhs) {
 		ArrayList<Node> re = new ArrayList<Node>();
-		re.addAll(lhs);
-		re.addAll(rhs);
+		for(Node t: lhs)
+			re.add(t);
+		for(Node t: rhs)
+			re.add(t);
 		return re;
 	}
 
