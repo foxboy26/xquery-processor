@@ -1,0 +1,5 @@
+      for $s in doc("j_caesar.xml")//SPEAKER
+return
+    for $a in doc("j_caesar.xml")//ACT
+    where some $s1 in $a/SCENE/SPEECH/SPEAKER satisfies $s1 eq $s
+                return $a/title/text()
