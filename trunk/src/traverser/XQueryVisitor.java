@@ -296,7 +296,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			NodeList children = n.getChildNodes();
 			int numOfChildren = children.getLength();
 			for (int i = 0; i < numOfChildren; i++) {
-				if (children.item(i).getNodeName().equals(node.tagName))
+				if (children.item(i).getNodeName().equalsIgnoreCase(node.tagName))
 					resultSet.add(children.item(i));
 			}
 		}
@@ -535,7 +535,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 
 		finalSet.addAll((ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this,
 				data));
-		return null;
+		return finalSet;
 	}
 
 	@Override
@@ -784,8 +784,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		if (!lhs.getNodeName().equals(rhs.getNodeName()))
 			return false;
 		if (lhs instanceof TextImpl && rhs instanceof TextImpl) {
-			System.out.println("lvalue:" + lhs.getNodeValue());
-			System.out.println("rvalue:" + rhs.getNodeValue());
+			//System.out.println("lvalue:" + lhs.getNodeValue());
+			//System.out.println("rvalue:" + rhs.getNodeValue());
 			if (!((TextImpl) lhs).getNodeValue().trim()
 					.equals(((TextImpl) rhs).getNodeValue().trim()))
 				return false;
