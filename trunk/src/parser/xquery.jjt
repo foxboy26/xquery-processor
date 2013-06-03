@@ -276,14 +276,22 @@ void Var() #Var : { Token t;}
 
 void XQuery() #void : {}
 {
-  LOOKAHEAD(XQueryPrime() "/" RelPath())
-  (XQueryPrime() "/" RelPath())      #XQuerySlash
-|
   LOOKAHEAD(XQueryPrime() Temp())
   (XQueryPrime() (LOOKAHEAD(Temp()) Temp())+)       #XQueryComma
+|
+  LOOKAHEAD(XQuerySlash() Temp())
+  (XQuerySlash() Temp())      #XQueryComma
 | 
+  LOOKAHEAD(XQuerySlash())
+  XQuerySlash()
+|
   LOOKAHEAD(XQueryPrime())
   XQueryPrime()                                           //#Epsilon
+}
+
+void XQuerySlash() #XQuerySlash : {}
+{
+  XQueryPrime() "/" RelPath()
 }
 
 void Temp() #void : {}
