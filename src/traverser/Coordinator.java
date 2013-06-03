@@ -26,7 +26,7 @@ public class Coordinator {
 		// String str = "doc(\"test.xml\")//book";
 		XQueryParser t;
 		try {
-			t = new XQueryParser(new FileInputStream(new File("test.txt")));
+			t = new XQueryParser(new FileInputStream(new File("xpath.txt")));
 			Context context = new Context();
 			ASTStart n = t.Start();
 			n.dump(">");
