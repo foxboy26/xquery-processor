@@ -1320,15 +1320,15 @@ void Var()      : {/*@bgen(jjtree) Var */
 
 void XQuery()       : {}
 {
-  LOOKAHEAD(XQueryPrime() "/" RelPath())/*@bgen(jjtree) XQuerySlash */
+  LOOKAHEAD(XQueryPrime() Temp())/*@bgen(jjtree) XQueryComma */
   {
-    ASTXQuerySlash jjtn001 = new ASTXQuerySlash(JJTXQUERYSLASH);
+    ASTXQueryComma jjtn001 = new ASTXQueryComma(JJTXQUERYCOMMA);
     boolean jjtc001 = true;
     jjtree.openNodeScope(jjtn001);
   }
   try {
 /*@egen*/
-  (XQueryPrime() "/" RelPath())/*@bgen(jjtree)*/
+  (XQueryPrime() (LOOKAHEAD(Temp()) Temp())+)/*@bgen(jjtree)*/
   } catch (Throwable jjte001) {
     if (jjtc001) {
       jjtree.clearNodeScope(jjtn001);
@@ -1348,9 +1348,9 @@ void XQuery()       : {}
       jjtree.closeNodeScope(jjtn001, true);
     }
   }
-/*@egen*/                  
+/*@egen*/                   
 |
-  LOOKAHEAD(XQueryPrime() Temp())/*@bgen(jjtree) XQueryComma */
+  LOOKAHEAD(XQuerySlash() Temp())/*@bgen(jjtree) XQueryComma */
   {
     ASTXQueryComma jjtn002 = new ASTXQueryComma(JJTXQUERYCOMMA);
     boolean jjtc002 = true;
@@ -1358,7 +1358,7 @@ void XQuery()       : {}
   }
   try {
 /*@egen*/
-  (XQueryPrime() (LOOKAHEAD(Temp()) Temp())+)/*@bgen(jjtree)*/
+  (XQuerySlash() Temp())/*@bgen(jjtree)*/
   } catch (Throwable jjte002) {
     if (jjtc002) {
       jjtree.clearNodeScope(jjtn002);
@@ -1378,10 +1378,44 @@ void XQuery()       : {}
       jjtree.closeNodeScope(jjtn002, true);
     }
   }
-/*@egen*/                   
+/*@egen*/                  
 | 
+  LOOKAHEAD(XQuerySlash())
+  XQuerySlash()
+|
   LOOKAHEAD(XQueryPrime())
   XQueryPrime()                                           //#Epsilon
+}
+
+void XQuerySlash()              : {/*@bgen(jjtree) XQuerySlash */
+  ASTXQuerySlash jjtn000 = new ASTXQuerySlash(JJTXQUERYSLASH);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) XQuerySlash */
+  try {
+/*@egen*/
+  XQueryPrime() "/" RelPath()/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
 }
 
 void Temp()       : {}

@@ -547,7 +547,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		finalSet.get(level).addAll((ArrayList<Node>) firstChild.jjtAccept(this,
 				data));
 		
-		printFinalSet("Return");
+		//printFinalSet("Return");
 		
 		return null;
 	}
@@ -668,17 +668,17 @@ public class XQueryVisitor implements XQueryParserVisitor {
 				.jjtAccept(this, context);
 
 		resultSet.addAll(lhsResultSet);
-		System.out.println("[XQueryComma] lhs: " + lhsResultSet);
+		//System.out.println("[XQueryComma] lhs: " + lhsResultSet);
 		
-		System.out.println("[XQueryComma] resultSet: " + resultSet);
+		//System.out.println("[XQueryComma] resultSet: " + resultSet);
 		
 		ArrayList<Node> rhsResultSet = (ArrayList<Node>) node.jjtGetChild(1)
 				.jjtAccept(this, context);
 		resultSet.addAll(rhsResultSet);
 
-		System.out.println("[XQueryComma] rhs: " + rhsResultSet);
+		//System.out.println("[XQueryComma] rhs: " + rhsResultSet);
 		
-		System.out.println("[XQueryComma] resultSet: " + resultSet);
+		//System.out.println("[XQueryComma] resultSet: " + resultSet);
 		
 		return resultSet;
 	}
@@ -730,7 +730,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		
 		node.jjtGetChild(0).jjtAccept(this, data);
 		
-		printFinalSet("FLWR");
+		//printFinalSet("FLWR");
 		
 		return finalSet.get(level--);	
 	}

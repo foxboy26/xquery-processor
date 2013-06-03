@@ -38,8 +38,8 @@ public interface XQueryParserTreeConstants
   public int JJTCONDEMPTY = 32;
   public int JJTCONDSOME = 33;
   public int JJTVAR = 34;
-  public int JJTXQUERYSLASH = 35;
-  public int JJTXQUERYCOMMA = 36;
+  public int JJTXQUERYCOMMA = 35;
+  public int JJTXQUERYSLASH = 36;
   public int JJTSTRING = 37;
   public int JJTNEWTAG = 38;
   public int JJTFLWR = 39;
@@ -82,12 +82,12 @@ public interface XQueryParserTreeConstants
     "CondEmpty",
     "CondSome",
     "Var",
-    "XQuerySlash",
     "XQueryComma",
+    "XQuerySlash",
     "String",
     "Newtag",
     "FLWR",
     "LX",
   };
 }
-/* JavaCC - OriginalChecksum=f2b072e8b8fb12f1a4b1f5b85bce0171 (do not edit this line) */
+/* JavaCC - OriginalChecksum=e91aa2610d8bbe344416861f64460f9f (do not edit this line) */

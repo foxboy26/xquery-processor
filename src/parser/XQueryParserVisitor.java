@@ -38,11 +38,11 @@ public interface XQueryParserVisitor
   public Object visit(ASTCondEmpty node, Object data);
   public Object visit(ASTCondSome node, Object data);
   public Object visit(ASTVar node, Object data);
-  public Object visit(ASTXQuerySlash node, Object data);
   public Object visit(ASTXQueryComma node, Object data);
+  public Object visit(ASTXQuerySlash node, Object data);
   public Object visit(ASTString node, Object data);
   public Object visit(ASTNewtag node, Object data);
   public Object visit(ASTFLWR node, Object data);
   public Object visit(ASTLX node, Object data);
 }
-/* JavaCC - OriginalChecksum=02a5ea9676dfebfadfad97fda144a505 (do not edit this line) */
+/* JavaCC - OriginalChecksum=8cfb3431ef124af803e773290d2bd493 (do not edit this line) */
