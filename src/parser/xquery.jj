@@ -401,9 +401,9 @@ void RelPath()       : {}
   }
 /*@egen*/                                  
 |  
-  LOOKAHEAD(RelPathPrime() (<COMMA> RelPath())+)/*@bgen(jjtree) Comma */
+  LOOKAHEAD(RelPathPrime() (<COMMA> RelPath())+)/*@bgen(jjtree) RelComma */
   {
-    ASTComma jjtn007 = new ASTComma(JJTCOMMA);
+    ASTRelComma jjtn007 = new ASTRelComma(JJTRELCOMMA);
     boolean jjtc007 = true;
     jjtree.openNodeScope(jjtn007);
   }
@@ -429,7 +429,7 @@ void RelPath()       : {}
       jjtree.closeNodeScope(jjtn007, true);
     }
   }
-/*@egen*/             
+/*@egen*/                
 | 
   LOOKAHEAD(RelPathPrime())
   RelPathPrime()                                           //#Epsilon
@@ -1320,9 +1320,9 @@ void Var()      : {/*@bgen(jjtree) Var */
 
 void XQuery()       : {}
 {
-  LOOKAHEAD(XQueryPrime() "/" RelPath())/*@bgen(jjtree) Slash */
+  LOOKAHEAD(XQueryPrime() "/" RelPath())/*@bgen(jjtree) XQuerySlash */
   {
-    ASTSlash jjtn001 = new ASTSlash(JJTSLASH);
+    ASTXQuerySlash jjtn001 = new ASTXQuerySlash(JJTXQUERYSLASH);
     boolean jjtc001 = true;
     jjtree.openNodeScope(jjtn001);
   }
@@ -1348,11 +1348,11 @@ void XQuery()       : {}
       jjtree.closeNodeScope(jjtn001, true);
     }
   }
-/*@egen*/            
+/*@egen*/                  
 |
-  LOOKAHEAD(XQueryPrime() Temp())/*@bgen(jjtree) Comma */
+  LOOKAHEAD(XQueryPrime() Temp())/*@bgen(jjtree) XQueryComma */
   {
-    ASTComma jjtn002 = new ASTComma(JJTCOMMA);
+    ASTXQueryComma jjtn002 = new ASTXQueryComma(JJTXQUERYCOMMA);
     boolean jjtc002 = true;
     jjtree.openNodeScope(jjtn002);
   }
@@ -1378,7 +1378,7 @@ void XQuery()       : {}
       jjtree.closeNodeScope(jjtn002, true);
     }
   }
-/*@egen*/             
+/*@egen*/                   
 | 
   LOOKAHEAD(XQueryPrime())
   XQueryPrime()                                           //#Epsilon

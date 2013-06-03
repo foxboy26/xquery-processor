@@ -139,7 +139,7 @@ void RelPath() #void : {}
   (RelPathPrime() ("[" Filter() "]")+)                       #RelFilter 
 |  
   LOOKAHEAD(RelPathPrime() (<COMMA> RelPath())+)
-  (RelPathPrime() (LOOKAHEAD(<COMMA> RelPath()) <COMMA> RelPath())+)       #Comma
+  (RelPathPrime() (LOOKAHEAD(<COMMA> RelPath()) <COMMA> RelPath())+)       #RelComma
 | 
   LOOKAHEAD(RelPathPrime())
   RelPathPrime()                                           //#Epsilon
@@ -277,10 +277,10 @@ void Var() #Var : { Token t;}
 void XQuery() #void : {}
 {
   LOOKAHEAD(XQueryPrime() "/" RelPath())
-  (XQueryPrime() "/" RelPath())      #Slash
+  (XQueryPrime() "/" RelPath())      #XQuerySlash
 |
   LOOKAHEAD(XQueryPrime() Temp())
-  (XQueryPrime() (LOOKAHEAD(Temp()) Temp())+)       #Comma
+  (XQueryPrime() (LOOKAHEAD(Temp()) Temp())+)       #XQueryComma
 | 
   LOOKAHEAD(XQueryPrime())
   XQueryPrime()                                           //#Epsilon
