@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.dom.ElementImpl;
@@ -15,11 +16,185 @@ import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 
-import parser.ASTStart;
-import parser.XQueryParser;
-import parser.XQueryParserVisitor;
+import parser.*;
 
 public class Transformer {
+		
+	
+		int[][] joinMarker;
+		ArrayList<ArrayList<Node>> partitions;
+		HashMap<String, SimpleNode> astContext;
+		
+		/*private ASTJoin constructJoin(ArrayList<Node> partition){
+			ASTFLWR FLWR = new ASTFLWR(0);
+			
+			ASTForClause forNode = constructFor(partition);
+			ASTWhereClause whereNode = constructWhere(partition);
+			ASTReturnClause returnNode = constructReturn(partition);
+			
+			FLWR.jjtAddChild(forNode, 0);
+			if(whereNode.jjtGetNumChildren() != 0){
+				FLWR.jjtAddChild(whereNode, 1);
+				FLWR.jjtAddChild(returnNode, 2);
+			} else{
+				FLWR.jjtAddChild(returnNode, 1);
+			}
+			return FLWR;
+		}*/
+		
+		private ASTFLWR constructFLWR(ArrayList<Node> partition){
+			ASTFLWR FLWR = new ASTFLWR(0);
+			
+			ASTForClause forNode = constructFor(partition);
+			ASTWhereClause whereNode = constructWhere(partition);
+			ASTReturnClause returnNode = constructReturn(partition);
+			
+			FLWR.jjtAddChild(forNode, 0);
+			if(whereNode.jjtGetNumChildren() != 0){
+				FLWR.jjtAddChild(whereNode, 1);
+				FLWR.jjtAddChild(returnNode, 2);
+			} else{
+				FLWR.jjtAddChild(returnNode, 1);
+			}
+			return FLWR;
+		}
+		
+		private ASTForClause constructFor(ArrayList<Node> nodelist){
+			
+			ASTForClause forNode = new ASTForClause(0);
+			
+			int i = 0;
+			for(Node n: nodelist){
+				String name = n.tagName;
+				SimpleNode snode = astContext.get(name);
+				forNode.jjtAddChild(snode, i);
+				++i;
+			}
+			
+			return forNode;
+		}
+		
+		private ASTWhereClause constructWhere(ArrayList<Node> nodelist){
+			
+			ASTWhereClause whereNode = new ASTWhereClause(0);
+			
+			int i = 0;
+			for(Node n: nodelist){
+				if(n.type == Node.TEXTNODE){
+					String name = n.parent.tagName;
+					ASTString stringNode = new ASTString(0);
+					stringNode.strName = n.tagName;
+					ASTVar varNode = new ASTVar(0);
+					varNode.varName = name;
+					ASTCondEq eqNode = new ASTCondEq(0);
+					eqNode.jjtAddChild(varNode, 0);
+					eqNode.jjtAddChild(stringNode, 1);
+					
+					
+					whereNode.jjtAddChild(eqNode, i);
+					++i;
+				}
+			}
+			
+			return whereNode;
+			
+		}
+		
+		private ASTReturnClause constructReturn(ArrayList<Node> nodelist){
+			
+			ASTReturnClause returnNode = new ASTReturnClause(0);
+			ASTNewtag newtagNode = new ASTNewtag(0);
+			newtagNode.tagName = "tuple";
+			returnNode.jjtAddChild(newtagNode, 0);
+			
+			ASTXQueryComma xcommaNode = new ASTXQueryComma(0);
+			ASTXQueryComma curComma = new ASTXQueryComma(0);
+			newtagNode.jjtAddChild(xcommaNode, 0);
+
+			int size = nodelist.size();
+			
+			for(int i = 0; i < size -1; ++i){
+				Node n = nodelist.get(i);
+						
+				if(n.isReturn){
+					String name = n.tagName;
+					ASTNewtag newtag = new ASTNewtag(0);
+					newtag.tagName = name.substring(1);
+					ASTVar var = new ASTVar(0);
+					var.varName = name;
+					newtag.jjtAddChild(var, 0);
+					curComma.jjtAddChild(newtag, 0);
+					xcommaNode = new ASTXQueryComma(0);
+					curComma.jjtAddChild(xcommaNode, 1);
+					curComma = xcommaNode;
+				}
+			}
+			Node n = nodelist.get(size -1);
+			String name = n.tagName;
+			ASTNewtag newtag = new ASTNewtag(0);
+			newtag.tagName = name.substring(1);
+			ASTVar var = new ASTVar(0);
+			var.varName = name;
+			newtag.jjtAddChild(var, 0);
+			curComma.jjtAddChild(newtag, 0);
+			
+			
+			return returnNode;
+		}
+		
+/*		private JoinParas getJoinParas(int i, int j){
+			JoinParas jp = new JoinParas();
+			ArrayList<Node> llist = partitions.get(i);
+			ArrayList<Node> rlist = partitions.get(j);
+			
+			for(Node n: llist){
+				if(n.isReturn)
+					jp.firstForParas.add(n);
+			}
+			
+			for(Node n: rlist){
+				if(n.isReturn)
+					jp.secondForParas.add(n);
+			}
+			
+			for(Node n : llist){
+				ArrayList<Node> pairs = n.pairs;			
+				for(Node m: pairs){
+					if(rlist.contains(m)){
+						jp.firstJoinParas.add(n);
+						jp.secondForParas.add(m);
+					}
+				}
+			}
+			return jp;
+		}*/
+		
+		
+		private void constructGraph(){
+			int size = partitions.size();
+			joinMarker = new int[size][size];
+			for(int i = 0; i < size; ++i){
+				for(int j = i+1; j < size; ++j){
+					if(needJoin(partitions.get(i),partitions.get(j))){
+						joinMarker[i][j] = 1;
+						joinMarker[j][i] = 1;
+					}
+				}
+			}
+		}
+	
+		public static boolean needJoin(ArrayList<Node> llist, ArrayList<Node> rlist){
+			for(Node n : llist){
+				ArrayList<Node> pairs = n.pairs;
+				for(Node m: pairs){
+					if(rlist.contains(m))
+						return true;
+				}
+			}
+			return false;
+		}
+	
+	
 	
 	
 		public static void printPartition(ArrayList<ArrayList<Node>> partition) {
