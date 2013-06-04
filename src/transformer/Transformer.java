@@ -2,19 +2,8 @@ package transformer;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import org.apache.xerces.dom.DocumentImpl;
-import org.apache.xerces.dom.ElementImpl;
-import org.apache.xerces.dom.TextImpl;
-import org.apache.xml.serialize.Method;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
-import org.w3c.dom.Element;
-import org.w3c.dom.Document;
 
 import parser.*;
 
@@ -247,7 +236,6 @@ public class Transformer {
 			}
 			return true;
 		}
-
 	
 		public static void main(String args[]) {
 			// System.out.println("Reading from standard input...");
@@ -258,17 +246,25 @@ public class Transformer {
 				ASTStart n = t.Start();
 				n.dump(">");
 				
+				// construct tree for partition.
 				XQueryParserVisitor visitor = new RewriteVisitor();
-				System.out.println(((RewriteVisitor)visitor).root);
 				n.jjtAccept(visitor, null);
 				System.out.println();
 				
-				Node root = ((RewriteVisitor)visitor).root;
+				XQueryParserVisitor printer = new PrinterVisitor();
+				n.jjtAccept(printer, null);
 				
-				root.dump();
 				
-				ArrayList<ArrayList<Node>> partition = Transformer.getPartitions(root);
-				Transformer.printPartition(partition);
+				//Node root = ((RewriteVisitor)visitor).root;
+				//root.dump();
+				//ArrayList<ArrayList<Node>> partition = Transformer.getPartitions(root);
+				
+				
+				//Transformer.printPartition(partition);
+				
+				
+				
+				
 				
 			} catch (Exception e) {
 				System.out.println("Oops.");
