@@ -13,7 +13,6 @@ import org.apache.xml.serialize.Method;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.Document;
 
 import parser.ASTStart;
@@ -21,6 +20,60 @@ import parser.XQueryParser;
 import parser.XQueryParserVisitor;
 
 public class Transformer {
+	
+		
+		public ArrayList<ArrayList<Node>> partite(Node root){
+			
+		}
+	
+		
+		
+		private ArrayList<ArrayList<Node>> getPartitions(Node node){
+			ArrayList<ArrayList<Node>> res = new ArrayList<ArrayList<Node>>();
+			ArrayList<ArrayList<Node>> partitions = new ArrayList<ArrayList<Node>>();
+			ArrayList<Node> curPart = node.getDescendents();
+			res.add(curPart);
+			if(node.isReturn){		
+				return res;
+			}
+			
+			if(!node.hasChildren()){
+				return res;
+			}
+				
+			
+			for(Node n: node.children){
+				ArrayList<Node> nodelist = n.getDescendents();
+				if(isPartition(nodelist)){
+					partitions.addAll(getPartitions(n));
+				}
+				else
+					return res;
+			}
+			return partitions;							
+		}
+	
+		private ArrayList<Node> getPartition(Node node){
+			ArrayList<Node> nodelist = node.getDescendents();
+						
+			if(isPartition(nodelist))
+				return nodelist;
+			else
+				return null;			
+		}
+		
+		private boolean isPartition(ArrayList<Node> nodelist){
+			for(Node n: nodelist){
+				ArrayList<Node> pairs = n.pairs;
+				for(Node m: pairs){
+					if(nodelist.contains(m));
+						return false;
+				}
+			}
+			return true;
+		}
+
+	
 		public static void main(String args[]) {
 			// System.out.println("Reading from standard input...");
 			// String str = "doc(\"test.xml\")//book";
@@ -32,7 +85,7 @@ public class Transformer {
 				
 				XQueryParserVisitor visitor = new RewriteVisitor();
 				System.out.println(((RewriteVisitor)visitor).root);
-				ArrayList<Node> resultSet = (ArrayList<Node>) n.jjtAccept(visitor, null);
+				n.jjtAccept(visitor, null);
 				System.out.println();
 				
 				((RewriteVisitor)visitor).root.dump();
