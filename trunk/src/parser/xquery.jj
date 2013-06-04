@@ -77,6 +77,8 @@ TOKEN [IGNORE_CASE]:
 |
   < RETURN    : "return" >
 |
+  < JOIN      : "join" >
+|
   < COMMA     : "," >
 |
   < ASSIGN    : ":=" >
@@ -1508,37 +1510,22 @@ void XQueryPrime()       : { Token t; }
   }
 /*@egen*/        
 |
-  LOOKAHEAD(ForClause() LetClause())/*@bgen(jjtree) FLWR */
-  {
-    ASTFLWR jjtn004 = new ASTFLWR(JJTFLWR);
-    boolean jjtc004 = true;
-    jjtree.openNodeScope(jjtn004);
-  }
-  try {
-/*@egen*/
-  (ForClause() LetClause() WhereClause() ReturnClause())/*@bgen(jjtree)*/
-  } catch (Throwable jjte004) {
-    if (jjtc004) {
-      jjtree.clearNodeScope(jjtn004);
-      jjtc004 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte004 instanceof RuntimeException) {
-      throw (RuntimeException)jjte004;
-    }
-    if (jjte004 instanceof ParseException) {
-      throw (ParseException)jjte004;
-    }
-    throw (Error)jjte004;
-  } finally {
-    if (jjtc004) {
-      jjtree.closeNodeScope(jjtn004, true);
-    }
-  }
+  <JOIN> "(" XQuery() <COMMA> XQuery() <COMMA> "[" <TAGNAME> "]" <COMMA> "[" <TAGNAME> "]"/*@bgen(jjtree) Join */
+                                                                                           {
+                                                                                             ASTJoin jjtn004 = new ASTJoin(JJTJOIN);
+                                                                                             boolean jjtc004 = true;
+                                                                                             jjtree.openNodeScope(jjtn004);
+                                                                                           }
+                                                                                           try {
+/*@egen*/ ")"/*@bgen(jjtree)*/
+                                                                                           } finally {
+                                                                                             if (jjtc004) {
+                                                                                               jjtree.closeNodeScope(jjtn004, true);
+                                                                                             }
+                                                                                           }
 /*@egen*/      
-|
-  LOOKAHEAD(ForClause())/*@bgen(jjtree) FLWR */
+|  
+  LOOKAHEAD(ForClause() LetClause())/*@bgen(jjtree) FLWR */
   {
     ASTFLWR jjtn005 = new ASTFLWR(JJTFLWR);
     boolean jjtc005 = true;
@@ -1546,7 +1533,7 @@ void XQueryPrime()       : { Token t; }
   }
   try {
 /*@egen*/
-  (ForClause() WhereClause() ReturnClause())/*@bgen(jjtree)*/
+  (ForClause() LetClause() WhereClause() ReturnClause())/*@bgen(jjtree)*/
   } catch (Throwable jjte005) {
     if (jjtc005) {
       jjtree.clearNodeScope(jjtn005);
@@ -1567,15 +1554,16 @@ void XQueryPrime()       : { Token t; }
     }
   }
 /*@egen*/      
-|/*@bgen(jjtree) LX */
+|
+  LOOKAHEAD(ForClause())/*@bgen(jjtree) FLWR */
   {
-    ASTLX jjtn006 = new ASTLX(JJTLX);
+    ASTFLWR jjtn006 = new ASTFLWR(JJTFLWR);
     boolean jjtc006 = true;
     jjtree.openNodeScope(jjtn006);
   }
   try {
 /*@egen*/
-  (LetClause() XQuery())/*@bgen(jjtree)*/
+  (ForClause() WhereClause() ReturnClause())/*@bgen(jjtree)*/
   } catch (Throwable jjte006) {
     if (jjtc006) {
       jjtree.clearNodeScope(jjtn006);
@@ -1593,6 +1581,35 @@ void XQueryPrime()       : { Token t; }
   } finally {
     if (jjtc006) {
       jjtree.closeNodeScope(jjtn006, true);
+    }
+  }
+/*@egen*/      
+|/*@bgen(jjtree) LX */
+  {
+    ASTLX jjtn007 = new ASTLX(JJTLX);
+    boolean jjtc007 = true;
+    jjtree.openNodeScope(jjtn007);
+  }
+  try {
+/*@egen*/
+  (LetClause() XQuery())/*@bgen(jjtree)*/
+  } catch (Throwable jjte007) {
+    if (jjtc007) {
+      jjtree.clearNodeScope(jjtn007);
+      jjtc007 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte007 instanceof RuntimeException) {
+      throw (RuntimeException)jjte007;
+    }
+    if (jjte007 instanceof ParseException) {
+      throw (ParseException)jjte007;
+    }
+    throw (Error)jjte007;
+  } finally {
+    if (jjtc007) {
+      jjtree.closeNodeScope(jjtn007, true);
     }
   }
 /*@egen*/        

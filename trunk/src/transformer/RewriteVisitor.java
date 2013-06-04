@@ -24,6 +24,7 @@ import parser.ASTFilterParen;
 import parser.ASTFilterRelPath;
 import parser.ASTForClause;
 import parser.ASTIn;
+import parser.ASTJoin;
 import parser.ASTLX;
 import parser.ASTLetClause;
 import parser.ASTNewtag;
@@ -352,5 +353,11 @@ public class RewriteVisitor implements XQueryParserVisitor {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+  public Object visit(ASTJoin node, Object data) {
+	  // TODO Auto-generated method stub
+	  return null;
+  }
 
 }

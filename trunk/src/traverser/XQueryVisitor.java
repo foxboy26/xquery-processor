@@ -22,6 +22,7 @@ import parser.ASTFilterParen;
 import parser.ASTFilterRelPath;
 import parser.ASTForClause;
 import parser.ASTIn;
+import parser.ASTJoin;
 import parser.ASTLX;
 import parser.ASTLetClause;
 import parser.ASTNewtag;
@@ -912,4 +913,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		for (ArrayList<Node> list : finalSet)
 			System.out.println(list);
 	}
+
+	@Override
+  public Object visit(ASTJoin node, Object data) {
+	  // TODO Auto-generated method stub
+	  return null;
+  }
 }
