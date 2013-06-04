@@ -21,14 +21,10 @@ import parser.XQueryParserVisitor;
 
 public class Transformer {
 	
-		
-		public ArrayList<ArrayList<Node>> partite(Node root){
-			
-		}
 	
 		
 		
-		private ArrayList<ArrayList<Node>> getPartitions(Node node){
+		public ArrayList<ArrayList<Node>> getPartitions(Node node){
 			ArrayList<ArrayList<Node>> res = new ArrayList<ArrayList<Node>>();
 			ArrayList<ArrayList<Node>> partitions = new ArrayList<ArrayList<Node>>();
 			ArrayList<Node> curPart = node.getDescendents();
