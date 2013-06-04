@@ -19,6 +19,8 @@ import org.w3c.dom.Document;
 import parser.ASTStart;
 import parser.XQueryParser;
 import parser.XQueryParserVisitor;
+import transformer.PrinterVisitor;
+import transformer.Transformer;
 
 public class Coordinator {
 	public static void main(String args[]) {
@@ -27,16 +29,22 @@ public class Coordinator {
 		XQueryParser t;
 		try {
 			t = new XQueryParser(new FileInputStream(new File("join")));
+			ASTStart root = t.Start();
+			root.dump(">");
+
+			Transformer transformer = new Transformer(root);
+			if (transformer.isRewrittable) {
+				root = transformer.rewrite();
+				System.out.println("Optimized plan: ");
+				root.jjtAccept(new PrinterVisitor(), null);
+			}
+
 			Context context = new Context();
-			ASTStart n = t.Start();
-			n.dump(">");
-			
 			XQueryParserVisitor visitor = new XQueryVisitor();
-			ArrayList<Node> resultSet = (ArrayList<Node>) n.jjtAccept(visitor, context);
-			System.out.println();
-			
+			ArrayList<Node> resultSet = 
+					(ArrayList<Node>) root.jjtAccept(visitor, context);
+
 			System.out.println("Result:");
-			
 			print(resultSet);
 		} catch (Exception e) {
 			System.out.println("Oops.");
@@ -46,9 +54,10 @@ public class Coordinator {
 	}
 
 	public static void print(ArrayList<Node> result) {
-    PrintWriter writer= new PrintWriter(System.out);
-		XMLSerializer serializer = new XMLSerializer(writer, new OutputFormat(Method.XML, "UTF-8", true));
-    boolean first = true;
+		PrintWriter writer = new PrintWriter(System.out);
+		XMLSerializer serializer = new XMLSerializer(writer, new OutputFormat(
+		    Method.XML, "UTF-8", true));
+		boolean first = true;
 		for (Node n : result) {
 			try {
 				if (first) {
@@ -68,10 +77,10 @@ public class Coordinator {
 					else if (n instanceof TextImpl)
 						System.out.println(n.getNodeValue());
 				}
-      } catch (IOException e) {
-	      // TODO Auto-generated catch block
-	      e.printStackTrace();
-      }
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }

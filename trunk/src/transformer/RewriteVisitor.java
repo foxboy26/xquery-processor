@@ -213,7 +213,7 @@ public class RewriteVisitor implements XQueryParserVisitor {
 		} else if (first instanceof ASTVar) {
 			context.get(((ASTVar) first).varName).addChild(n);
 		} else {
-			System.out.println("hahaha!");
+			System.out.println("Unknown core-syntax");
 		}
 		
 		return null;
@@ -250,7 +250,7 @@ public class RewriteVisitor implements XQueryParserVisitor {
 			child.jjtAccept(this, data);
 			this.isReturn = false;
 		} else {
-			System.out.println("haha");
+			System.out.println("Unknown core-syntax");
 		}
 		
 		return null;

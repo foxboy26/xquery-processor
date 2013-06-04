@@ -430,7 +430,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		int size = resultSet.size();
 
 		// Find out the index if current node
-
 		SimpleNode parent = (SimpleNode) ((SimpleNode) node).jjtGetParent();
 		int childNum = ((SimpleNode) parent).jjtGetNumChildren();
 		int index = 0;
@@ -748,6 +747,18 @@ public class XQueryVisitor implements XQueryParserVisitor {
 
 		return node.jjtAccept(this, newContext);
 	}
+	
+	@Override
+  public Object visit(ASTJoin node, Object data) {
+	  // TODO Auto-generated method stub
+	  return data;
+  }
+
+	@Override
+  public Object visit(ASTJoinList node, Object data) {
+	  // TODO Auto-generated method stub
+	  return data;
+  }
 
 	ArrayList<Node> getDescendants(Node n, ArrayList<Node> result) {
 		NodeList nodelist = n.getChildNodes();
@@ -914,16 +925,4 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		for (ArrayList<Node> list : finalSet)
 			System.out.println(list);
 	}
-
-	@Override
-  public Object visit(ASTJoin node, Object data) {
-	  // TODO Auto-generated method stub
-	  return null;
-  }
-
-	@Override
-  public Object visit(ASTJoinList node, Object data) {
-	  // TODO Auto-generated method stub
-	  return null;
-  }
 }
