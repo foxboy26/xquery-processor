@@ -7,6 +7,11 @@ class ASTNewtag extends SimpleNode {
 
   public String tagName;
 
+  public ASTNewtag(String tagName) {
+  	super(0);
+  	this.tagName = tagName;
+  }
+  
   public ASTNewtag(int id) {
     super(id);
   }
