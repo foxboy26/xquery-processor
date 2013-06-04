@@ -72,6 +72,10 @@ public class Node {
 		return decs;
 	}
 	
+	public String toString() {
+		return this.tagName;
+	}
+	
 	static public void main(String[] args) {
 		Node root = new Node("root", Node.TAGNODE);
 		Node child = new Node("a", Node.TAGNODE);
