@@ -42,30 +42,31 @@ public class Transformer {
 				
 			
 			for(Node n: node.children){
-				ArrayList<Node> nodelist = n.getDescendents();
+				/*ArrayList<Node> nodelist = n.getDescendents();
 				if(isPartition(nodelist)){
 					partitions.addAll(getPartitions(n));
 				}
 				else
-					return res;
+					return res;*/
+				partitions.addAll(getPartitions(n));
 			}
 			return partitions;							
 		}
 	
-		private static ArrayList<Node> getPartition(Node node){
+/*		private static ArrayList<Node> getPartition(Node node){
 			ArrayList<Node> nodelist = node.getDescendents();
 						
 			if(isPartition(nodelist))
 				return nodelist;
 			else
 				return null;			
-		}
+		}*/
 		
 		private static boolean isPartition(ArrayList<Node> nodelist){
 			for(Node n: nodelist){
 				ArrayList<Node> pairs = n.pairs;
 				for(Node m: pairs){
-					if(nodelist.contains(m));
+					if(nodelist.contains(m))
 						return false;
 				}
 			}
