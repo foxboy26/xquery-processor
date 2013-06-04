@@ -42,8 +42,9 @@ public interface XQueryParserTreeConstants
   public int JJTXQUERYSLASH = 36;
   public int JJTSTRING = 37;
   public int JJTNEWTAG = 38;
-  public int JJTFLWR = 39;
-  public int JJTLX = 40;
+  public int JJTJOIN = 39;
+  public int JJTFLWR = 40;
+  public int JJTLX = 41;
 
 
   public String[] jjtNodeName = {
@@ -86,8 +87,9 @@ public interface XQueryParserTreeConstants
     "XQuerySlash",
     "String",
     "Newtag",
+    "Join",
     "FLWR",
     "LX",
   };
 }
-/* JavaCC - OriginalChecksum=e91aa2610d8bbe344416861f64460f9f (do not edit this line) */
+/* JavaCC - OriginalChecksum=5332c827bf688ae420265b14e293565f (do not edit this line) */

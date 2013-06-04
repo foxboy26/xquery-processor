@@ -42,7 +42,8 @@ public interface XQueryParserVisitor
   public Object visit(ASTXQuerySlash node, Object data);
   public Object visit(ASTString node, Object data);
   public Object visit(ASTNewtag node, Object data);
+  public Object visit(ASTJoin node, Object data);
   public Object visit(ASTFLWR node, Object data);
   public Object visit(ASTLX node, Object data);
 }
-/* JavaCC - OriginalChecksum=8cfb3431ef124af803e773290d2bd493 (do not edit this line) */
+/* JavaCC - OriginalChecksum=ba4e49a7e5925ecd3f3e9db809c9dc17 (do not edit this line) */

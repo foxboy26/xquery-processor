@@ -73,6 +73,8 @@ TOKEN [IGNORE_CASE]:
 |
   < RETURN    : "return" >
 |
+  < JOIN      : "join" >
+|
   < COMMA     : "," >
 |
   < ASSIGN    : ":=" >
@@ -312,6 +314,8 @@ void XQueryPrime() #void : { Token t; }
 | 
   ("<" t = <TAGNAME> { jjtThis.tagName = t.image; } ">" "{" XQuery() "}" "<" "/" <TAGNAME> ">") #Newtag
 |
+  <JOIN> "(" XQuery() <COMMA> XQuery() <COMMA> "[" <TAGNAME> "]" <COMMA> "[" <TAGNAME> "]" ")" #Join
+|  
   LOOKAHEAD(ForClause() LetClause())
   (ForClause() LetClause() WhereClause() ReturnClause()) #FLWR
 |

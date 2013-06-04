@@ -41,15 +41,17 @@ public interface XQueryParserConstants {
   /** RegularExpression Id. */
   int RETURN = 19;
   /** RegularExpression Id. */
-  int COMMA = 20;
+  int JOIN = 20;
   /** RegularExpression Id. */
-  int ASSIGN = 21;
+  int COMMA = 21;
   /** RegularExpression Id. */
-  int STRING = 22;
+  int ASSIGN = 22;
   /** RegularExpression Id. */
-  int TAGNAME = 23;
+  int STRING = 23;
   /** RegularExpression Id. */
-  int VAR = 24;
+  int TAGNAME = 24;
+  /** RegularExpression Id. */
+  int VAR = 25;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -76,6 +78,7 @@ public interface XQueryParserConstants {
     "\"empty\"",
     "\"satisfies\"",
     "\"return\"",
+    "\"join\"",
     "\",\"",
     "\":=\"",
     "<STRING>",
