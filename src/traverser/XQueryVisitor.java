@@ -23,6 +23,7 @@ import parser.ASTFilterRelPath;
 import parser.ASTForClause;
 import parser.ASTIn;
 import parser.ASTJoin;
+import parser.ASTJoinList;
 import parser.ASTLX;
 import parser.ASTLetClause;
 import parser.ASTNewtag;
@@ -916,6 +917,12 @@ public class XQueryVisitor implements XQueryParserVisitor {
 
 	@Override
   public Object visit(ASTJoin node, Object data) {
+	  // TODO Auto-generated method stub
+	  return null;
+  }
+
+	@Override
+  public Object visit(ASTJoinList node, Object data) {
 	  // TODO Auto-generated method stub
 	  return null;
   }

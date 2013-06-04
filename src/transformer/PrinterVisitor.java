@@ -23,6 +23,7 @@ import parser.ASTFilterRelPath;
 import parser.ASTForClause;
 import parser.ASTIn;
 import parser.ASTJoin;
+import parser.ASTJoinList;
 import parser.ASTLX;
 import parser.ASTLetClause;
 import parser.ASTNewtag;
@@ -280,7 +281,6 @@ public class PrinterVisitor implements XQueryParserVisitor {
 		// TODO Auto-generated method stub
 		System.out.print("return ");
 		node.childrenAccept(this, data);
-		System.out.println();
 		return null;
 	}
 
@@ -380,8 +380,14 @@ public class PrinterVisitor implements XQueryParserVisitor {
 	public Object visit(ASTJoin node, Object data) {
 		// TODO Auto-generated method stub
 		System.out.println("join (");
-		node.childrenAccept(this, data);
-		System.out.println(")");
+		node.jjtGetChild(0).jjtAccept(this, data);
+		System.out.println(",");
+		node.jjtGetChild(1).jjtAccept(this, data);
+		System.out.println(",");
+		node.jjtGetChild(2).jjtAccept(this, data);
+		System.out.println(",");
+		node.jjtGetChild(3).jjtAccept(this, data);
+		System.out.print("\n)");
 		return null;
 	}
 
@@ -398,4 +404,21 @@ public class PrinterVisitor implements XQueryParserVisitor {
 		node.childrenAccept(this, data);
 		return null;
 	}
+
+	@Override
+  public Object visit(ASTJoinList node, Object data) {
+	  // TODO Auto-generated method stub
+		System.out.print("[");
+		int numOfChild = node.jjtGetNumChildren();
+		boolean first = true;
+		for (int i = 0; i < numOfChild; i++) {
+			if (first)
+				first = false;
+			else
+				System.out.print(", ");
+			node.jjtGetChild(i).jjtAccept(this, data);
+		}
+		System.out.print("]");
+	  return null;
+  }
 }

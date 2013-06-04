@@ -17,7 +17,6 @@ public interface XQueryParserVisitor
   public Object visit(ASTDdot node, Object data);
   public Object visit(ASTText node, Object data);
   public Object visit(ASTParen node, Object data);
-  public Object visit(ASTTagName node, Object data);
   public Object visit(ASTFilterAnd node, Object data);
   public Object visit(ASTFilterOr node, Object data);
   public Object visit(ASTFilterEq node, Object data);
@@ -45,5 +44,7 @@ public interface XQueryParserVisitor
   public Object visit(ASTJoin node, Object data);
   public Object visit(ASTFLWR node, Object data);
   public Object visit(ASTLX node, Object data);
+  public Object visit(ASTJoinList node, Object data);
+  public Object visit(ASTTagName node, Object data);
 }
-/* JavaCC - OriginalChecksum=ba4e49a7e5925ecd3f3e9db809c9dc17 (do not edit this line) */
+/* JavaCC - OriginalChecksum=c27567b057a12eacdb6a89410d87e1bc (do not edit this line) */
