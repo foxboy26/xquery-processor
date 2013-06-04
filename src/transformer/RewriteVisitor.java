@@ -240,7 +240,7 @@ public class RewriteVisitor implements XQueryParserVisitor {
 		if (child instanceof ASTVar ||
 				child instanceof ASTNewtag ||
 				child instanceof ASTXQueryComma ||
-				child instanceof ASTRelSlash) {
+				child instanceof ASTXQuerySlash) {
 			this.isReturn = true;
 			child.jjtAccept(this, data);
 			this.isReturn = false;
@@ -319,6 +319,9 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTXQuerySlash node, Object data) {
 		// TODO Auto-generated method stub
+		if (this.isReturn) {
+			node.childrenAccept(this, data);
+		}
 		return null;
 	}
 
