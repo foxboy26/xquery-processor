@@ -26,17 +26,55 @@ public class Transformer {
 		
 		ASTFLWR flwr = new ASTFLWR(0);
 		ASTForClause forNode = rewriteFor();
-		ASTWhereClause whereNode = rewriteWhere();
-		ASTReturnClause returnNode = rewriteReturn();
+//		ASTReturnClause returnNode = rewriteReturn();
 		
 		newRoot.jjtAddChild(flwr, 0);
 		flwr.jjtSetParent(newRoot);
+		newRoot.jjtAddChild(forNode, 0);
 		
 		return newRoot;
 	}
 	
 	public ASTForClause rewriteFor() {
-		return null;
+		
+		int size = partitions.size();
+		int[] isVisit = new int[size];
+		
+		ASTForClause forNode = new ASTForClause(0);
+		
+		if(size < 2){
+			System.out.println("Unrewritable");
+			return null;
+		}
+		
+		int remain = size;
+		
+		int inNum = 0;
+		
+		while(remain != 0){
+			ASTIn inNode = new ASTIn(0);
+			
+			forNode.jjtAddChild(inNode, inNum);
+			
+			ASTVar varNode = new ASTVar("$tuple");
+			
+			inNode.jjtAddChild(varNode, 0);
+		
+			ASTJoin join = constructJoin(isVisit, remain);
+			
+			inNode.jjtAddChild(inNode, 1);
+		
+			for(int i = 0; i < size; ++i){
+				if(isVisit[i] == 0)
+					remain++;
+			}
+			
+			if(remain == 1){
+				System.out.println("Unrewritable");
+				return null;
+			}		
+		}
+		return forNode;
 	}
 	
 	public ASTWhereClause rewriteWhere() {
@@ -47,12 +85,141 @@ public class Transformer {
 		return null;
 	}
 	
-	private ASTJoin constructJoin(ArrayList<Node> partition) {
+	private ASTJoin constructJoin(int[] isVisit, int remain) {		
+		
+		int size = partitions.size();
+		
+		int first = 0;
+		
+		for(int i: isVisit){
+			if(i == 0){
+				first = i;
+				break;
+			}
+		}
+		
+		
+		ASTFLWR flwr1 = constructFLWR(partitions.get(0));
+		
+		isVisit[first] = 1;
+		
+		--remain;
+		
+		int next = getNext(isVisit)[0];
+		
+		ASTFLWR flwr2 = constructFLWR(partitions.get(next));
+		
+		isVisit[next] = 1;
+		--remain;
+		
+		ArrayList<Node> firstList = new ArrayList<Node>();
+		ArrayList<Node> secList = new ArrayList<Node>();
+	
+		for(Node n: partitions.get(first)){
+			ArrayList<Node> pairs = n.pairs;
+			for(Node m: pairs){
+				if(partitions.get(next).contains(m)){
+					firstList.add(n);
+					secList.add(m);				
+				}
+			}
+		}
+		
+		ASTJoinList firstlist = new ASTJoinList(0);
+		int index = 0;
+		for(Node n: firstList){
+			ASTTagName t = new ASTTagName(n.tagName.substring(1));
+			firstlist.jjtAddChild(t, index++);
+		}
+		ASTJoinList seclist = new ASTJoinList(0);
+		index = 0;
+		for(Node n: secList){
+			ASTTagName t = new ASTTagName(n.tagName.substring(1));
+			seclist.jjtAddChild(t, index++);
+		}
+		
 		ASTJoin join = new ASTJoin(0);
+		
+		join.jjtAddChild(flwr1, 0);
+		join.jjtAddChild(flwr2, 1);
+		join.jjtAddChild(firstlist, 2);
+		join.jjtAddChild(seclist, 3);
+
+		for(int i = 1; i < size; ++i){
+			if(remain == 0)
+				return join;
+			
+			
+			if(getNext(isVisit) == null){
+				return join;
+			}
+			else{
+				first = getNext(isVisit)[1];
+				next = getNext(isVisit)[0];
+				--remain;
+				
+				ASTFLWR flwr = constructFLWR(partitions.get(next));
+				
+				ArrayList<Node> flist = new ArrayList<Node>();
+				ArrayList<Node> slist = new ArrayList<Node>();
+			
+				for(Node n: partitions.get(first)){
+					ArrayList<Node> pairs = n.pairs;
+					for(Node m: pairs){
+						if(partitions.get(next).contains(m)){
+							flist.add(n);
+							slist.add(m);				
+						}
+					}
+				}
+				
+				ASTJoinList fList = new ASTJoinList(0);
+				index = 0;
+				for(Node n: flist){
+					ASTTagName t = new ASTTagName(n.tagName.substring(1));
+					fList.jjtAddChild(t, index++);
+				}
+				ASTJoinList sList = new ASTJoinList(0);
+				index = 0;
+				for(Node n: slist){
+					ASTTagName t = new ASTTagName(n.tagName.substring(1));
+					sList.jjtAddChild(t, index++);
+				}
+				
+				ASTJoin newJoin = new ASTJoin(0);
+				
+				newJoin.jjtAddChild(join, 0);
+				newJoin.jjtAddChild(flwr, 1);
+				newJoin.jjtAddChild(fList, 2);
+				newJoin.jjtAddChild(sList, 3);
+				
+				join = newJoin;						
+				
+			}
+		}
 		
 		return join;
 	}
 	 
+	
+	private int[] getNext(int[] isVisit){
+		int size = partitions.size();
+		for(int i = 0; i < size; ++i){
+			if(isVisit[i] == 0){
+				for(int j = 0; j < size; ++j){
+					if(joinMarker[i][j] == 1 && isVisit[j] == 1){
+						int[] re= new int[2];
+						re[0] = i;
+						re[1] = j;
+						return re;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	
 	private ASTFLWR constructFLWR(ArrayList<Node> partition) {
 		ASTFLWR FLWR = new ASTFLWR(0);
 
