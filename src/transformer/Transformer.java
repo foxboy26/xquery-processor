@@ -9,23 +9,50 @@ import parser.*;
 
 public class Transformer {
 
+	public boolean isRewrittable;
+	ASTStart root;
+	
 	int[][] joinMarker;
 	ArrayList<ArrayList<Node>> partitions;
 	HashMap<String, SimpleNode> astContext;
 
-	/*
-	 * private ASTJoin constructJoin(ArrayList<Node> partition){ ASTFLWR FLWR =
-	 * new ASTFLWR(0);
-	 * 
-	 * ASTForClause forNode = constructFor(partition); ASTWhereClause whereNode =
-	 * constructWhere(partition); ASTReturnClause returnNode =
-	 * constructReturn(partition);
-	 * 
-	 * FLWR.jjtAddChild(forNode, 0); if(whereNode.jjtGetNumChildren() != 0){
-	 * FLWR.jjtAddChild(whereNode, 1); FLWR.jjtAddChild(returnNode, 2); } else{
-	 * FLWR.jjtAddChild(returnNode, 1); } return FLWR; }
-	 */
-
+	public Transformer(ASTStart root) {
+		this.isRewrittable = false;
+		this.root = root;
+	}
+	
+	public ASTStart rewrite() {
+		ASTStart newRoot = new ASTStart(0);
+		
+		ASTFLWR flwr = new ASTFLWR(0);
+		ASTForClause forNode = rewriteFor();
+		ASTWhereClause whereNode = rewriteWhere();
+		ASTReturnClause returnNode = rewriteReturn();
+		
+		newRoot.jjtAddChild(flwr, 0);
+		flwr.jjtSetParent(newRoot);
+		
+		return newRoot;
+	}
+	
+	public ASTForClause rewriteFor() {
+		return null;
+	}
+	
+	public ASTWhereClause rewriteWhere() {
+		return null;
+	}
+	
+	public ASTReturnClause rewriteReturn() {
+		return null;
+	}
+	
+	private ASTJoin constructJoin(ArrayList<Node> partition) {
+		ASTJoin join = new ASTJoin(0);
+		
+		return join;
+	}
+	 
 	private ASTFLWR constructFLWR(ArrayList<Node> partition) {
 		ASTFLWR FLWR = new ASTFLWR(0);
 
@@ -151,7 +178,7 @@ public class Transformer {
 		}
 	}
 
-	public static boolean needJoin(ArrayList<Node> llist, ArrayList<Node> rlist) {
+	public boolean needJoin(ArrayList<Node> llist, ArrayList<Node> rlist) {
 		for (Node n : llist) {
 			ArrayList<Node> pairs = n.pairs;
 			for (Node m : pairs) {
@@ -162,12 +189,12 @@ public class Transformer {
 		return false;
 	}
 
-	public static void printPartition(ArrayList<ArrayList<Node>> partition) {
+	public void printPartition(ArrayList<ArrayList<Node>> partition) {
 		for (ArrayList<Node> list : partition)
 			System.out.println(list);
 	}
 
-	public static ArrayList<ArrayList<Node>> getPartitions(Node node) {
+	public ArrayList<ArrayList<Node>> getPartitions(Node node) {
 		ArrayList<ArrayList<Node>> res = new ArrayList<ArrayList<Node>>();
 		ArrayList<ArrayList<Node>> partitions = new ArrayList<ArrayList<Node>>();
 		ArrayList<Node> curPart = node.getDescendents();
@@ -198,7 +225,7 @@ public class Transformer {
 	 * if(isPartition(nodelist)) return nodelist; else return null; }
 	 */
 
-	private static boolean isPartition(ArrayList<Node> nodelist) {
+	private boolean isPartition(ArrayList<Node> nodelist) {
 		for (Node n : nodelist) {
 			ArrayList<Node> pairs = n.pairs;
 			for (Node m : pairs) {
