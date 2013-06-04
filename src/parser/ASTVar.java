@@ -7,6 +7,11 @@ class ASTVar extends SimpleNode {
 
   public String varName;
 
+  public ASTVar(String varName) {
+  	super(0);
+  	this.varName = varName;
+  }
+  
   public ASTVar(int id) {
     super(id);
   }
