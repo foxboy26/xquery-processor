@@ -60,6 +60,17 @@ public class Node {
 		dumpHelp(0);
 	}
 	
+	public ArrayList<Node> getDescendents(){
+		ArrayList<Node> decs = new ArrayList<Node>();
+		decs.add(this);
+		if(!this.hasChildren()){
+			return decs;
+		}
+		for(Node tmp: this.children){
+			decs.addAll(tmp.getDescendents());
+		}
+		return decs;
+	}
 	
 	static public void main(String[] args) {
 		Node root = new Node("root", Node.TAGNODE);
@@ -70,6 +81,7 @@ public class Node {
 		child.addChild(new Node("aa", Node.TAGNODE));
 		child.addChild(new Node("bb", Node.TAGNODE));
 		child.isReturn = true;
-		root.dump();
+		//root.dump();
+		System.out.println(root.getDescendents());
 	}
 }
