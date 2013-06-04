@@ -11,13 +11,14 @@ public class Node {
 	ArrayList<Node> children;
 	Node parent;
 	ArrayList<Node> pairs;
-	
+	boolean isReturn;
 	int type;
 	
 	public Node() {
 		this.tagName = "";
 		children = new ArrayList<Node> ();
 		this.type = TAGNODE;
+		this.isReturn = false;
 	}
 	
 	public Node(String tagName, int type) {
@@ -25,6 +26,7 @@ public class Node {
 		this.children = new ArrayList<Node> ();
 		this.pairs = new ArrayList<Node> ();
 		this.type = type;
+		this.isReturn = false;
 	}
 	
 	public void addChild(Node child) {
@@ -49,7 +51,7 @@ public class Node {
 		for (int i = 0; i < level; i++)
 			System.out.print("  ");
 		
-		System.out.println(this.tagName);
+		System.out.println(this.tagName + ((this.isReturn)? "[return]" : ""));
 		for (Node n : this.children)
 			n.dumpHelp(level + 1);
 	}
@@ -67,7 +69,7 @@ public class Node {
 		root.addChild(new Node("c", Node.TAGNODE));
 		child.addChild(new Node("aa", Node.TAGNODE));
 		child.addChild(new Node("bb", Node.TAGNODE));
-
+		child.isReturn = true;
 		root.dump();
 	}
 }

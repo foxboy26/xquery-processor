@@ -47,6 +47,8 @@ import parser.XQueryParserVisitor;
 
 public class RewriteVisitor implements XQueryParserVisitor {
 	
+	boolean isReturn = false;
+	
 	public Node root = new Node("input", Node.TAGNODE);
 	
 	HashMap<String, Node> context = new HashMap<String, Node> ();
@@ -84,6 +86,9 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTRelSlash node, Object data) {
 		// TODO Auto-generated method stub
+		if (this.isReturn) {
+			node.childrenAccept(this, data);
+		}
 		return null;
 	}
 
@@ -230,6 +235,19 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTReturnClause node, Object data) {
 		// TODO Auto-generated method stub
+		SimpleNode child = (SimpleNode) node.jjtGetChild(0);
+		
+		if (child instanceof ASTVar ||
+				child instanceof ASTNewtag ||
+				child instanceof ASTXQueryComma ||
+				child instanceof ASTRelSlash) {
+			this.isReturn = true;
+			child.jjtAccept(this, data);
+			this.isReturn = false;
+		} else {
+			System.out.println("haha");
+		}
+		
 		return null;
 	}
 
@@ -254,8 +272,6 @@ public class RewriteVisitor implements XQueryParserVisitor {
 		if (right instanceof ASTVar) {
 			context.get(left.varName).addPair(context.get(((ASTVar) right).varName));
 		} else if (right instanceof ASTString) {
-			System.out.println("stirng!!!");
-			System.out.println(((ASTString) right).strName.length());
 			Node n = new Node(((ASTString) right).strName, Node.TEXTNODE);
 			context.get(left.varName).addChild(n);
 		}
@@ -284,12 +300,19 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTVar node, Object data) {
 		// TODO Auto-generated method stub
+		if (isReturn) {
+			context.get(node.varName).isReturn = true;
+		}
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTXQueryComma node, Object data) {
 		// TODO Auto-generated method stub
+		if (isReturn) {
+			node.jjtGetChild(0).jjtAccept(this, data);
+			node.jjtGetChild(1).jjtAccept(this, data);
+		}
 		return null;
 	}
 
@@ -308,6 +331,9 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTNewtag node, Object data) {
 		// TODO Auto-generated method stub
+		if (this.isReturn) {
+			node.childrenAccept(this, data);
+		}
 		return null;
 	}
 
