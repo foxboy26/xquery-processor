@@ -10,6 +10,11 @@ class ASTTagName extends SimpleNode {
   public ASTTagName(int id) {
     super(id);
   }
+  
+  public ASTTagName(String name) {
+	super(0);
+	tagName = name;
+  }
 
   public ASTTagName(XQueryParser p, int id) {
     super(p, id);
