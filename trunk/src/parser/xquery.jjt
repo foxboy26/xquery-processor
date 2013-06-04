@@ -167,7 +167,7 @@ void RelFilter() #RelFilter : {}
   "[" Filter() "]"
 }
 
-void RelPathPrime() #void : { Token t; }
+void RelPathPrime() #void : {}
 {
   "*"                                          #Star
 | 
@@ -179,7 +179,7 @@ void RelPathPrime() #void : { Token t; }
 | 
   ("(" RelPath() ")")                          #Paren
 | 
-  t = <TAGNAME> { jjtThis.tagName = t.image; } #TagName
+  TagName()
 }
 
 /** A Filter Path. */
@@ -314,7 +314,7 @@ void XQueryPrime() #void : { Token t; }
 | 
   ("<" t = <TAGNAME> { jjtThis.tagName = t.image; } ">" "{" XQuery() "}" "<" "/" <TAGNAME> ">") #Newtag
 |
-  <JOIN> "(" XQuery() <COMMA> XQuery() <COMMA> "[" <TAGNAME> "]" <COMMA> "[" <TAGNAME> "]" ")" #Join
+  (<JOIN> "(" JoinFWR() <COMMA> JoinFWR() <COMMA> JoinList() <COMMA> JoinList() ")") #Join
 |  
   LOOKAHEAD(ForClause() LetClause())
   (ForClause() LetClause() WhereClause() ReturnClause()) #FLWR
@@ -323,4 +323,47 @@ void XQueryPrime() #void : { Token t; }
   (ForClause() WhereClause() ReturnClause()) #FLWR
 |
   (LetClause() XQuery())     #LX
+}
+
+void JoinList() #JoinList : {}
+{
+  "[" TagName() (LOOKAHEAD(<COMMA> TagName()) <COMMA> TagName())* "]" 
+}
+
+void TagName() #TagName : { Token t; }
+{
+  t = <TAGNAME> { jjtThis.tagName = t.image; }
+}
+
+void JoinFWR() #FLWR : {}
+{
+  ForClause() WhereClause() JoinReturnClause()
+}
+
+void JoinReturnClause() #ReturnClause : {}
+{
+  <RETURN> JoinReturn()
+}
+
+void JoinReturn() #void : {}
+{
+  LOOKAHEAD(JoinReturnPrime() JoinTemp())
+  (JoinReturnPrime() (LOOKAHEAD(JoinTemp()) JoinTemp())+ ) #XQueryComma
+|
+  JoinReturnPrime()
+}
+
+void JoinTemp() #void : {}
+{
+  LOOKAHEAD({ (getToken(1).kind == COMMA && getToken(3).kind != IN && getToken(3).kind != ASSIGN )})
+  <COMMA> JoinReturn()
+}
+
+void JoinReturnPrime() #void : { Token t; }
+{
+  Var()
+| 
+  AbsPath()                                     
+| 
+  ("<" t = <TAGNAME> { jjtThis.tagName = t.image; } ">" "{" JoinReturn() "}" "<" "/" <TAGNAME> ">") #Newtag
 }

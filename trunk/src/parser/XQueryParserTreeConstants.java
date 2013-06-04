@@ -17,34 +17,35 @@ public interface XQueryParserTreeConstants
   public int JJTDDOT = 11;
   public int JJTTEXT = 12;
   public int JJTPAREN = 13;
-  public int JJTTAGNAME = 14;
-  public int JJTFILTERAND = 15;
-  public int JJTFILTEROR = 16;
-  public int JJTFILTEREQ = 17;
-  public int JJTFILTERIS = 18;
-  public int JJTFILTERRELPATH = 19;
-  public int JJTFILTERPAREN = 20;
-  public int JJTFILTERNOT = 21;
-  public int JJTFORCLAUSE = 22;
-  public int JJTIN = 23;
-  public int JJTLETCLAUSE = 24;
-  public int JJTASSIGN = 25;
-  public int JJTWHERECLAUSE = 26;
-  public int JJTRETURNCLAUSE = 27;
-  public int JJTCONDAND = 28;
-  public int JJTCONDOR = 29;
-  public int JJTCONDEQ = 30;
-  public int JJTCONDIS = 31;
-  public int JJTCONDEMPTY = 32;
-  public int JJTCONDSOME = 33;
-  public int JJTVAR = 34;
-  public int JJTXQUERYCOMMA = 35;
-  public int JJTXQUERYSLASH = 36;
-  public int JJTSTRING = 37;
-  public int JJTNEWTAG = 38;
-  public int JJTJOIN = 39;
-  public int JJTFLWR = 40;
-  public int JJTLX = 41;
+  public int JJTFILTERAND = 14;
+  public int JJTFILTEROR = 15;
+  public int JJTFILTEREQ = 16;
+  public int JJTFILTERIS = 17;
+  public int JJTFILTERRELPATH = 18;
+  public int JJTFILTERPAREN = 19;
+  public int JJTFILTERNOT = 20;
+  public int JJTFORCLAUSE = 21;
+  public int JJTIN = 22;
+  public int JJTLETCLAUSE = 23;
+  public int JJTASSIGN = 24;
+  public int JJTWHERECLAUSE = 25;
+  public int JJTRETURNCLAUSE = 26;
+  public int JJTCONDAND = 27;
+  public int JJTCONDOR = 28;
+  public int JJTCONDEQ = 29;
+  public int JJTCONDIS = 30;
+  public int JJTCONDEMPTY = 31;
+  public int JJTCONDSOME = 32;
+  public int JJTVAR = 33;
+  public int JJTXQUERYCOMMA = 34;
+  public int JJTXQUERYSLASH = 35;
+  public int JJTSTRING = 36;
+  public int JJTNEWTAG = 37;
+  public int JJTJOIN = 38;
+  public int JJTFLWR = 39;
+  public int JJTLX = 40;
+  public int JJTJOINLIST = 41;
+  public int JJTTAGNAME = 42;
 
 
   public String[] jjtNodeName = {
@@ -62,7 +63,6 @@ public interface XQueryParserTreeConstants
     "Ddot",
     "Text",
     "Paren",
-    "TagName",
     "FilterAnd",
     "FilterOr",
     "FilterEq",
@@ -90,6 +90,8 @@ public interface XQueryParserTreeConstants
     "Join",
     "FLWR",
     "LX",
+    "JoinList",
+    "TagName",
   };
 }
-/* JavaCC - OriginalChecksum=5332c827bf688ae420265b14e293565f (do not edit this line) */
+/* JavaCC - OriginalChecksum=37b2c0437bc0a582ea06aed834c517ce (do not edit this line) */
