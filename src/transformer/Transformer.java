@@ -15,6 +15,7 @@ public class Transformer {
 	int[][] joinMarker;
 	ArrayList<ArrayList<Node>> partitions;
 	HashMap<String, SimpleNode> astContext;
+	Node partitionRoot;
 
 	public Transformer(ASTStart root) {
 		this.isRewrittable = false;
@@ -22,6 +23,25 @@ public class Transformer {
 	}
 	
 	public ASTStart rewrite() {
+		
+		XQueryParserVisitor visitor = new RewriteVisitor();
+		root.jjtAccept(visitor, null);
+		System.out.println();
+		
+		astContext = ((RewriteVisitor) visitor).astContext;
+		partitionRoot = ((RewriteVisitor) visitor).root;
+		
+		partitions = this.getPartitions(partitionRoot);
+		
+		this.constructGraph();
+		
+		ASTStart newRoot = this.rewriteTree();
+		
+		return newRoot;
+	}
+	
+	
+	public ASTStart rewriteTree() {
 		ASTStart newRoot = new ASTStart(0);
 		
 		ASTFLWR flwr = new ASTFLWR(0);
@@ -34,7 +54,7 @@ public class Transformer {
 		
 		return newRoot;
 	}
-	
+
 	public ASTForClause rewriteFor() {
 		
 		int size = partitions.size();
@@ -82,6 +102,7 @@ public class Transformer {
 	}
 	
 	public ASTReturnClause rewriteReturn() {
+		
 		return null;
 	}
 	

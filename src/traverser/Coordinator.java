@@ -28,16 +28,16 @@ public class Coordinator {
 		// String str = "doc(\"test.xml\")//book";
 		XQueryParser t;
 		try {
-			t = new XQueryParser(new FileInputStream(new File("join")));
+			t = new XQueryParser(new FileInputStream(new File("rewrite.txt")));
 			ASTStart root = t.Start();
 			root.dump(">");
 
 			Transformer transformer = new Transformer(root);
-			if (transformer.isRewrittable) {
+			//if (transformer.isRewrittable) {
 				root = transformer.rewrite();
 				System.out.println("Optimized plan: ");
 				root.jjtAccept(new PrinterVisitor(), null);
-			}
+			//}
 
 			Context context = new Context();
 			XQueryParserVisitor visitor = new XQueryVisitor();
