@@ -22,9 +22,12 @@ import parser.XQueryParserVisitor;
 public class Transformer {
 	
 	
+		public static void printPartition(ArrayList<ArrayList<Node>> partition) {
+			for (ArrayList<Node> list : partition)
+				System.out.println(list);
+		}
 		
-		
-		public ArrayList<ArrayList<Node>> getPartitions(Node node){
+		public static ArrayList<ArrayList<Node>> getPartitions(Node node){
 			ArrayList<ArrayList<Node>> res = new ArrayList<ArrayList<Node>>();
 			ArrayList<ArrayList<Node>> partitions = new ArrayList<ArrayList<Node>>();
 			ArrayList<Node> curPart = node.getDescendents();
@@ -49,7 +52,7 @@ public class Transformer {
 			return partitions;							
 		}
 	
-		private ArrayList<Node> getPartition(Node node){
+		private static ArrayList<Node> getPartition(Node node){
 			ArrayList<Node> nodelist = node.getDescendents();
 						
 			if(isPartition(nodelist))
@@ -58,7 +61,7 @@ public class Transformer {
 				return null;			
 		}
 		
-		private boolean isPartition(ArrayList<Node> nodelist){
+		private static boolean isPartition(ArrayList<Node> nodelist){
 			for(Node n: nodelist){
 				ArrayList<Node> pairs = n.pairs;
 				for(Node m: pairs){
@@ -84,7 +87,12 @@ public class Transformer {
 				n.jjtAccept(visitor, null);
 				System.out.println();
 				
-				((RewriteVisitor)visitor).root.dump();
+				Node root = ((RewriteVisitor)visitor).root;
+				
+				root.dump();
+				
+				ArrayList<ArrayList<Node>> partition = Transformer.getPartitions(root);
+				Transformer.printPartition(partition);
 				
 			} catch (Exception e) {
 				System.out.println("Oops.");
