@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
   {
     fout << "<tuple>" << endl;
     fout << "<id>" << i << "</id>" << endl;
-    fout << "<age>" << rand() % 100 << "</age>" << endl;
+    fout << "<age>" << rand() % 2 + 1 << "</age>" << endl;
     fout << "</tuple>" << endl;
   }
   fout << "</user>" << endl;
