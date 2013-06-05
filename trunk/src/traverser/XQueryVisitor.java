@@ -726,7 +726,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTFLWR node, Object data) {
 		// TODO Auto-generated method stub
-		SimpleNode grandParent = (SimpleNode) node.jjtGetParent().jjtGetParent();
+		//SimpleNode grandParent = (SimpleNode) node.jjtGetParent().jjtGetParent();
 		
 		++level;
 		
@@ -757,33 +757,41 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	  // TODO Auto-generated method stub
 	  ArrayList<Node> firstlist = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
 	  ArrayList<Node> seclist = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, data);
-	  ArrayList<String> firstAttrList = (ArrayList<String>) node.jjtGetChild(2).jjtAccept(this, data);
-	  ArrayList<String> secAttrList = (ArrayList<String>) node.jjtGetChild(3).jjtAccept(this, data);
+	  String[] firstAttrList = (String[]) node.jjtGetChild(2).jjtAccept(this, data);
+	  String[] secAttrList = (String[]) node.jjtGetChild(3).jjtAccept(this, data);
 	  
-	  int attrNum = firstAttrList.size();
-	  for(int i = 0; i < attrNum; ++i){
-		  if(firstlist.size() > 0 && seclist.size() > 0){
-			  String attrName = firstAttrList.get(i);
-			  int findex = getAttrIndex(firstlist.get(0), attrName);
-			  sort(firstlist, findex);
-			  attrName = secAttrList.get(i);
-			  int sindex = getAttrIndex(seclist.get(0), attrName);
-			  sort(seclist, sindex);
-			  join(firstlist, seclist, findex, sindex);
-		  }
-		  else 
-			  return null;
+	  int attrNum = firstAttrList.length;
+	  int[] findex = new int[attrNum];
+	  int[] sindex = new int[attrNum];
+	  
+	  if(firstlist.size() > 0 && seclist.size() > 0){
+		  Node tmp = firstlist.get(0);
+		  for(int i = 0; i < attrNum; ++i){
+			  findex[i] = getAttrIndex(tmp, firstAttrList[i]);
+		  } 
+		  tmp = seclist.get(0);
+		  for(int i = 0; i < attrNum; ++i){
+			  sindex[i] = getAttrIndex(tmp, secAttrList[i]);
+		  } 
 	  }
 	  
-	  
-	  
-	  return data;
+	  sort(firstlist, findex[0]);
+	  sort(seclist, sindex[0]);
+	  join(firstlist, seclist, findex, sindex);
+	    
+	  return firstlist;
   }
 
 	@Override
   public Object visit(ASTJoinList node, Object data) {
 	  // TODO Auto-generated method stub
-	  return data;
+	  int num = node.jjtGetNumChildren();
+	  String[] attrs = new String[num];
+	  for(int i = 0; i < num; ++i){
+		  attrs[i] = ((ASTTagName)node.jjtGetChild(i)).tagName;
+	  }
+	  
+	  return attrs;
   }
 
 	ArrayList<Node> getDescendants(Node n, ArrayList<Node> result) {
@@ -971,22 +979,39 @@ public class XQueryVisitor implements XQueryParserVisitor {
         });
 	}
 	
-	private void join(ArrayList<Node> flist, ArrayList<Node> slist, int findex, int sindex){
+	private void join(ArrayList<Node> flist, ArrayList<Node> slist, int[] findex, int[] sindex){
+		
 		int fsize = flist.size();
 		int ssize = slist.size();
 		int i = 0, j = 0;
 		while(i < fsize && j < ssize){
-			String first = ((TextImpl)flist.get(i).getChildNodes().item(findex)).getNodeValue();
-			String second = ((TextImpl)flist.get(j).getChildNodes().item(sindex)).getNodeValue();
+			NodeList fchildren = flist.get(i).getChildNodes();
+			NodeList schildren = slist.get(j).getChildNodes();
+			String first = ((TextImpl)fchildren.item(findex[0])).getNodeValue();
+			String second = ((TextImpl)schildren.item(sindex[0])).getNodeValue();
 			if(first.compareTo(second) < 0){
 				flist.remove(i);
 				++i;
 			}
 			else if(first.compareTo(second) > 0){
-				slist.remove(j);
 				++j;
 			}
 			else{
+				int size = findex.length;
+				int k = 1;
+				while(k < size){
+					first = ((TextImpl)fchildren.item(findex[k])).getNodeValue();
+					second = ((TextImpl)schildren.item(sindex[k])).getNodeValue();
+					if(!first.equals(second))
+						break;
+				}
+				if(k == size){
+					int s = schildren.getLength();
+					Node cur = flist.get(i);
+					for(int x = 0; x < s; ++s){
+						cur.appendChild(schildren.item(x));
+					}
+				}
 				++i;
 				++j;
 			}		
@@ -995,9 +1020,9 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			flist.remove(i);
 			++i;
 		}
-		while(j < ssize){
+/*		while(j < ssize){
 			slist.remove(j);
 			++j;
-		}
+		}*/
 	}
 }

@@ -38,7 +38,9 @@ public class Coordinator {
 				System.out.println("Optimized plan: ");
 				root.jjtAccept(new PrinterVisitor(), null);
 			//}
-
+			
+			System.out.println("Print over!");	
+				
 			Context context = new Context();
 			XQueryParserVisitor visitor = new XQueryVisitor();
 			ArrayList<Node> resultSet = 
