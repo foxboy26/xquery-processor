@@ -28,7 +28,7 @@ public class Coordinator {
 		// String str = "doc(\"test.xml\")//book";
 		XQueryParser t;
 		try {
-			t = new XQueryParser(new FileInputStream(new File("rewrite.txt")));
+			t = new XQueryParser(new FileInputStream(new File("test.txt")));
 			ASTStart root = t.Start();
 			root.dump(">");
 

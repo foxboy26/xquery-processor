@@ -53,7 +53,9 @@ public class Transformer {
 		newRoot.jjtAddChild(flwr, 0);
 		flwr.jjtSetParent(newRoot);
 		flwr.jjtAddChild(forNode, 0);
+		forNode.jjtSetParent(flwr);
 		flwr.jjtAddChild(returnNode, 1);
+		returnNode.jjtSetParent(flwr);
 		
 		return newRoot;
 	}
@@ -78,14 +80,17 @@ public class Transformer {
 			ASTIn inNode = new ASTIn(0);
 			
 			forNode.jjtAddChild(inNode, inNum);
+			inNode.jjtSetParent(forNode);
 			
 			ASTVar varNode = new ASTVar("$tuple");
 			
 			inNode.jjtAddChild(varNode, 0);
+			varNode.jjtSetParent(inNode);
 		
 			ASTJoin join = constructJoin(isVisit, remain);
 			
 			inNode.jjtAddChild(join, 1);
+			join.jjtSetParent(inNode);
 			
 			remain = 0;
 		
@@ -123,8 +128,11 @@ public class Transformer {
 			ASTVar varNode = new ASTVar("$tuple");
 			ASTTagName tagNode = new ASTTagName(((ASTVar) node).varName.substring(1));
 			parent.jjtAddChild(xslash, index);
+			xslash.jjtSetParent(parent);
 			xslash.jjtAddChild(varNode, 0);
+			varNode.jjtSetParent(xslash);
 			xslash.jjtAddChild(tagNode, 1);
+			tagNode.jjtSetParent(xslash);
 		}
 		else{
 			childNum = node.jjtGetNumChildren();
@@ -178,20 +186,26 @@ public class Transformer {
 		for(Node n: firstList){
 			ASTTagName t = new ASTTagName(n.tagName.substring(1));
 			firstlist.jjtAddChild(t, index++);
+			t.jjtSetParent(firstlist);
 		}
 		ASTJoinList seclist = new ASTJoinList(0);
 		index = 0;
 		for(Node n: secList){
 			ASTTagName t = new ASTTagName(n.tagName.substring(1));
 			seclist.jjtAddChild(t, index++);
+			t.jjtSetParent(seclist);
 		}
 		
 		ASTJoin join = new ASTJoin(0);
 		
 		join.jjtAddChild(flwr1, 0);
+		flwr1.jjtSetParent(join);
 		join.jjtAddChild(flwr2, 1);
+		flwr2.jjtSetParent(join);
 		join.jjtAddChild(firstlist, 2);
+		firstlist.jjtSetParent(join);
 		join.jjtAddChild(seclist, 3);
+		seclist.jjtSetParent(join);
 
 		while(remain > 0){
 			
@@ -225,20 +239,26 @@ public class Transformer {
 				for(Node n: flist){
 					ASTTagName t = new ASTTagName(n.tagName.substring(1));
 					fList.jjtAddChild(t, index++);
+					t.jjtSetParent(fList);
 				}
 				ASTJoinList sList = new ASTJoinList(0);
 				index = 0;
 				for(Node n: slist){
 					ASTTagName t = new ASTTagName(n.tagName.substring(1));
 					sList.jjtAddChild(t, index++);
+					t.jjtSetParent(sList);
 				}
 				
 				ASTJoin newJoin = new ASTJoin(0);
 				
 				newJoin.jjtAddChild(join, 0);
+				join.jjtSetParent(newJoin);
 				newJoin.jjtAddChild(flwr, 1);
+				flwr.jjtSetParent(newJoin);
 				newJoin.jjtAddChild(fList, 2);
+				fList.jjtSetParent(newJoin);
 				newJoin.jjtAddChild(sList, 3);
+				sList.jjtSetParent(newJoin);
 				
 				join = newJoin;						
 				
@@ -275,11 +295,15 @@ public class Transformer {
 		ASTReturnClause returnNode = constructReturn(partition);
 
 		FLWR.jjtAddChild(forNode, 0);
+		forNode.jjtSetParent(FLWR);
 		if (whereNode.jjtGetNumChildren() != 0) {
 			FLWR.jjtAddChild(whereNode, 1);
+			whereNode.jjtSetParent(FLWR);
 			FLWR.jjtAddChild(returnNode, 2);
+			returnNode.jjtSetParent(FLWR);
 		} else {
 			FLWR.jjtAddChild(returnNode, 1);
+			returnNode.jjtSetParent(FLWR);
 		}
 		return FLWR;
 	}
@@ -294,6 +318,7 @@ public class Transformer {
 				String name = n.tagName;
 				SimpleNode snode = astContext.get(name);
 				forNode.jjtAddChild(snode, i);
+				snode.jjtSetParent(forNode);
 				++i;
 			}
 		}
@@ -315,9 +340,12 @@ public class Transformer {
 				varNode.varName = name;
 				ASTCondEq eqNode = new ASTCondEq(0);
 				eqNode.jjtAddChild(varNode, 0);
+				varNode.jjtSetParent(eqNode);
 				eqNode.jjtAddChild(stringNode, 1);
+				stringNode.jjtSetParent(eqNode);
 
 				whereNode.jjtAddChild(eqNode, i);
+				eqNode.jjtSetParent(whereNode);
 				++i;
 			}
 		}
@@ -332,11 +360,14 @@ public class Transformer {
 		ASTNewtag newtagNode = new ASTNewtag(0);
 		newtagNode.tagName = "tuple";
 		returnNode.jjtAddChild(newtagNode, 0);
+		newtagNode.jjtSetParent(returnNode);
 
 		ASTXQueryComma xcommaNode = new ASTXQueryComma(0);
 //		newtagNode.jjtAddChild(xcommaNode, 0);
 
 		int size = nodelist.size();
+		
+		boolean first = true;
 
 		for (int i = 0; i < size - 1; ++i) {
 			Node n = nodelist.get(i);
@@ -349,11 +380,18 @@ public class Transformer {
 				ASTVar var = new ASTVar(0);
 				var.varName = name;
 				newtag.jjtAddChild(var, 0);
+				var.jjtSetParent(newtag);
 				curComma.jjtAddChild(newtag, 0);
-				if(i != 0)
+				newtag.jjtSetParent(curComma);
+				if(!first){
 					xcommaNode.jjtAddChild(curComma, 1);
-				else
+					curComma.jjtSetParent(xcommaNode);
+				}
+				else{
 					newtagNode.jjtAddChild(curComma, 0);
+					curComma.jjtSetParent(newtagNode);
+					first = false;
+				}
 				xcommaNode = curComma;
 			}
 		}
@@ -364,10 +402,15 @@ public class Transformer {
 		ASTVar var = new ASTVar(0);
 		var.varName = name;
 		newtag.jjtAddChild(var, 0);
-		if(size > 1)
+		var.jjtSetParent(newtag);
+		if(size > 1){
 			xcommaNode.jjtAddChild(newtag, 1);
-		else
+			newtag.jjtSetParent(xcommaNode);
+		}
+		else{
 			newtagNode.jjtAddChild(newtag, 0);
+			newtag.jjtSetParent(newtagNode);
+		}
 		return returnNode;
 	}
 
@@ -415,9 +458,9 @@ public class Transformer {
 	}
 
 	public ArrayList<ArrayList<Node>> getPartitions(Node node) {
-		ArrayList<ArrayList<Node>> res = new ArrayList<ArrayList<Node>>();
+		//ArrayList<ArrayList<Node>> res = new ArrayList<ArrayList<Node>>();
 		ArrayList<ArrayList<Node>> partitions = new ArrayList<ArrayList<Node>>();
-		ArrayList<Node> curPart = node.getDescendents();
+	/*	ArrayList<Node> curPart = node.getDescendents();
 		res.add(curPart);
 		if (node.isReturn) {
 			return res;
@@ -428,13 +471,14 @@ public class Transformer {
 		}
 
 		for (Node n : node.children) {
-			/*
-			 * ArrayList<Node> nodelist = n.getDescendents();
-			 * if(isPartition(nodelist)){ partitions.addAll(getPartitions(n)); } else
-			 * return res;
-			 */
 			partitions.addAll(getPartitions(n));
+		}*/
+		
+		for (Node n : node.children) {
+			partitions.add(n.getDescendents());
 		}
+		
+		
 		return partitions;
 	}
 
