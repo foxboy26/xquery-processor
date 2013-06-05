@@ -5,7 +5,7 @@ package parser;
 public
 class ASTXQuerySlash extends SimpleNode {
   public ASTXQuerySlash(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTXQUERYSLASH);
   }
 
   public ASTXQuerySlash(XQueryParser p, int id) {

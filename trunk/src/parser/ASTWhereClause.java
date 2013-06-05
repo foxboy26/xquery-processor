@@ -5,7 +5,7 @@ package parser;
 public
 class ASTWhereClause extends SimpleNode {
   public ASTWhereClause(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTWHERECLAUSE);
   }
 
   public ASTWhereClause(XQueryParser p, int id) {

@@ -5,7 +5,7 @@ package parser;
 public
 class ASTJoinList extends SimpleNode {
   public ASTJoinList(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTJOINLIST);
   }
 
   public ASTJoinList(XQueryParser p, int id) {

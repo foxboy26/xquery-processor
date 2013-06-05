@@ -15,6 +15,6 @@ for $b1 in doc("input")/book,
   $af3 in $a3/first/text(),
   $al3 in $a3/last/text()
 where $aj eq "John" AND
-  $af1 eq $aj AND $al1 eq $al21 AND
+  $af1 eq $af21 AND $al1 eq $al21 AND
   $af22 eq $af3 AND $al22 eq $al3
-return <triplet> {$aj, $af1, $b2, $b3} </triplet>
+return <triplet> {$b1, $b2, $b3} </triplet>

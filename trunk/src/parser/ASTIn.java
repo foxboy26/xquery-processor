@@ -5,7 +5,7 @@ package parser;
 public
 class ASTIn extends SimpleNode {
   public ASTIn(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTIN);
   }
 
   public ASTIn(XQueryParser p, int id) {

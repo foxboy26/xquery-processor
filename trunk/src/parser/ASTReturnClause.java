@@ -5,7 +5,7 @@ package parser;
 public
 class ASTReturnClause extends SimpleNode {
   public ASTReturnClause(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTRETURNCLAUSE);
   }
 
   public ASTReturnClause(XQueryParser p, int id) {

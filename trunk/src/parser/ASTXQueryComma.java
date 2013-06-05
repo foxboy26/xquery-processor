@@ -5,7 +5,7 @@ package parser;
 public
 class ASTXQueryComma extends SimpleNode {
   public ASTXQueryComma(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTXQUERYCOMMA);
   }
 
   public ASTXQueryComma(XQueryParser p, int id) {
