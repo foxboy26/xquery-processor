@@ -8,7 +8,7 @@ class ASTVar extends SimpleNode {
   public String varName;
 
   public ASTVar(String varName) {
-  	super(0);
+  	super(XQueryParserTreeConstants.JJTVAR);
   	this.varName = varName;
   }
   

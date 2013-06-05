@@ -5,7 +5,7 @@ package parser;
 public
 class ASTCondAnd extends SimpleNode {
   public ASTCondAnd(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTCONDAND);
   }
 
   public ASTCondAnd(XQueryParser p, int id) {

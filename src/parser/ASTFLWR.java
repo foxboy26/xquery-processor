@@ -5,7 +5,7 @@ package parser;
 public
 class ASTFLWR extends SimpleNode {
   public ASTFLWR(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTFLWR);
   }
 
   public ASTFLWR(XQueryParser p, int id) {

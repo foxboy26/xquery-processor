@@ -5,7 +5,7 @@ package parser;
 public
 class ASTCondEq extends SimpleNode {
   public ASTCondEq(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTCONDEQ);
   }
 
   public ASTCondEq(XQueryParser p, int id) {

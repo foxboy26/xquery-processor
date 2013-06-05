@@ -5,7 +5,7 @@ package parser;
 public
 class ASTForClause extends SimpleNode {
   public ASTForClause(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTFORCLAUSE);
   }
 
   public ASTForClause(XQueryParser p, int id) {

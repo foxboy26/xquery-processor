@@ -12,7 +12,7 @@ class ASTTagName extends SimpleNode {
   }
   
   public ASTTagName(String name) {
-	super(0);
+	super(XQueryParserTreeConstants.JJTTAGNAME);
 	tagName = name;
   }
 

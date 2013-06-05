@@ -8,7 +8,7 @@ class ASTString extends SimpleNode {
   public String strName;
 
   public ASTString(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTSTRING);
   }
 
   public ASTString(XQueryParser p, int id) {
