@@ -1,5 +1,12 @@
-      for $s in doc("j_caesar.xml")//SPEAKER
-return
-    for $a in doc("j_caesar.xml")//ACT
-    where some $s1 in $a/SCENE/SPEECH/SPEAKER satisfies $s1 eq $s
-                return $a/title/text()
+for   $b1 in doc("user.xml")/user,
+	  $uage in $b1/tuple/age/text(),
+	  $uid in $b1/tuple/id/text(),
+	  $b2 in doc("product.xml")/product,
+	  $pname in $b2/tuple/name/text(),
+	  $pid in $b2/tuple/id/text(),
+	  $b3 in doc("order.xml")/product,
+	  $ouid in $b3/tuple/userid/text(),
+	  $opid in $b3/tuple/productid/text(),
+where $uage eq "23" AND 
+  $ouid eq $uid AND $opid eq $pid
+return <triplet> {$uage, $uid, $pid, $pname} </triplet>
