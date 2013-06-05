@@ -87,8 +87,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		SimpleNode firstChild = (SimpleNode) node.jjtGetChild(0);
 		ArrayList<Node> resultSet = (ArrayList<Node>) firstChild.jjtAccept(this, data);
 		
-		if(firstChild instanceof ASTFLWR)
-			return finalSet.get(0);
+		if(firstChild instanceof ASTFLWR){
+			resultSet.clear();
+			ArrayList<Node> nodes = finalSet.get(0);
+			for(Node n: nodes)
+				resultSet.add(n);
+			return resultSet;
+		}
 		else 
 			return resultSet;
 	}
@@ -433,7 +438,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		// Context newContext = context.add(varNode.varName, resultSet);
 		int size = resultSet.size();
 
-		// Find out the index if current node
+		// Find out the index of current node
 		SimpleNode parent = (SimpleNode) ((SimpleNode) node).jjtGetParent();
 		int childNum = ((SimpleNode) parent).jjtGetNumChildren();
 		int index = 0;
@@ -462,8 +467,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 
 			}
 
-			if (index == 0)
-				return finalSet.get(level);
+			if (index == 0){
+				ArrayList<Node> nodes = finalSet.get(level);
+				resultSet.clear();
+				for(Node n: nodes)
+					resultSet.add(n);
+				return resultSet;
+			}
 			return null;
 		} else {
 			for (int i = 0; i < size; ++i) {
@@ -541,10 +551,13 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTReturnClause node, Object data) {
 		// TODO Auto-generated method stub
+		
+		//System.out.println("r");
+		
 		checkNumOfChildren(node, 1, "[ReturnClause]");
 		SimpleNode firstChild = (SimpleNode) node.jjtGetChild(0);
 		
-		if(finalSet.size() <= level){
+		while(finalSet.size() <= level){
 			ArrayList<Node> curSet = new ArrayList<Node>();
 			finalSet.add(curSet);
 		}
@@ -728,16 +741,26 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		// TODO Auto-generated method stub
 		//SimpleNode grandParent = (SimpleNode) node.jjtGetParent().jjtGetParent();
 		
+		ArrayList<Node> res = new ArrayList<Node>();
+		
 		++level;
 		
-		if(finalSet.size() > level)
-			finalSet.get(level).clear();
+		int s = finalSet.size();
+		
+		while( s > level){
+			finalSet.get(--s).clear();
+		}
 		
 		node.jjtGetChild(0).jjtAccept(this, data);
 		
 		//printFinalSet("FLWR");
 		
-		return finalSet.get(level--);	
+		ArrayList<Node> nodes = finalSet.get(level--);
+		
+		for(Node n: nodes)
+			res.add(n);
+		
+		return res;
 	}
 
 	@Override
@@ -871,8 +894,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		if (!lhs.getNodeName().equals(rhs.getNodeName()))
 			return false;
 		if (lhs instanceof TextImpl && rhs instanceof TextImpl) {
-			//System.out.println("lvalue:" + lhs.getNodeValue());
-			//System.out.println("rvalue:" + rhs.getNodeValue());
+		/*	System.out.println("lvalue:" + lhs.getNodeValue());
+			System.out.println("rvalue:" + rhs.getNodeValue());*/
 			if (!((TextImpl) lhs).getNodeValue().trim()
 					.equals(((TextImpl) rhs).getNodeValue().trim()))
 				return false;
@@ -974,7 +997,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	private void sort(ArrayList<Node> list, final int index){
 		Collections.sort(list,new Comparator<Node>(){
             public int compare(Node lnode, Node rnode) {
-                return ((TextImpl)lnode.getChildNodes().item(index)).getNodeValue().compareTo(((TextImpl)rnode.getChildNodes().item(index)).getNodeValue());
+                return ((TextImpl)lnode.getChildNodes().item(index).getFirstChild()).getNodeValue().compareTo(((TextImpl)rnode.getChildNodes().item(index).getFirstChild()).getNodeValue());
             }
         });
 	}
@@ -987,8 +1010,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		while(i < fsize && j < ssize){
 			NodeList fchildren = flist.get(i).getChildNodes();
 			NodeList schildren = slist.get(j).getChildNodes();
-			String first = ((TextImpl)fchildren.item(findex[0])).getNodeValue();
-			String second = ((TextImpl)schildren.item(sindex[0])).getNodeValue();
+			String first = ((TextImpl)fchildren.item(findex[0]).getFirstChild()).getNodeValue();
+			String second = ((TextImpl)schildren.item(sindex[0]).getFirstChild()).getNodeValue();
 			if(first.compareTo(second) < 0){
 				flist.remove(i);
 				++i;
@@ -1000,8 +1023,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 				int size = findex.length;
 				int k = 1;
 				while(k < size){
-					first = ((TextImpl)fchildren.item(findex[k])).getNodeValue();
-					second = ((TextImpl)schildren.item(sindex[k])).getNodeValue();
+					first = ((TextImpl)fchildren.item(findex[k]).getFirstChild()).getNodeValue();
+					second = ((TextImpl)schildren.item(sindex[k]).getFirstChild()).getNodeValue();
 					if(!first.equals(second))
 						break;
 				}
