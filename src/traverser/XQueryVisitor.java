@@ -47,7 +47,11 @@ import parser.XQueryParserVisitor;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.dom.ElementImpl;
@@ -751,6 +755,28 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
   public Object visit(ASTJoin node, Object data) {
 	  // TODO Auto-generated method stub
+	  ArrayList<Node> firstlist = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+	  ArrayList<Node> seclist = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, data);
+	  ArrayList<String> firstAttrList = (ArrayList<String>) node.jjtGetChild(2).jjtAccept(this, data);
+	  ArrayList<String> secAttrList = (ArrayList<String>) node.jjtGetChild(3).jjtAccept(this, data);
+	  
+	  int attrNum = firstAttrList.size();
+	  for(int i = 0; i < attrNum; ++i){
+		  if(firstlist.size() > 0 && seclist.size() > 0){
+			  String attrName = firstAttrList.get(i);
+			  int findex = getAttrIndex(firstlist.get(0), attrName);
+			  sort(firstlist, findex);
+			  attrName = secAttrList.get(i);
+			  int sindex = getAttrIndex(seclist.get(0), attrName);
+			  sort(seclist, sindex);
+			  join(firstlist, seclist, findex, sindex);
+		  }
+		  else 
+			  return null;
+	  }
+	  
+	  
+	  
 	  return data;
   }
 
@@ -924,5 +950,54 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		System.out.println("[" + tag + "] finalSet: ");
 		for (ArrayList<Node> list : finalSet)
 			System.out.println(list);
+	}
+	
+	private int getAttrIndex(Node n, String attr){
+		NodeList nodelist = n.getChildNodes();
+		int childNum = nodelist.getLength();
+		for(int i = 0; i < childNum; ++i){
+			if(nodelist.item(i).getNodeName().equals(attr)){
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	private void sort(ArrayList<Node> list, final int index){
+		Collections.sort(list,new Comparator<Node>(){
+            public int compare(Node lnode, Node rnode) {
+                return ((TextImpl)lnode.getChildNodes().item(index)).getNodeValue().compareTo(((TextImpl)rnode.getChildNodes().item(index)).getNodeValue());
+            }
+        });
+	}
+	
+	private void join(ArrayList<Node> flist, ArrayList<Node> slist, int findex, int sindex){
+		int fsize = flist.size();
+		int ssize = slist.size();
+		int i = 0, j = 0;
+		while(i < fsize && j < ssize){
+			String first = ((TextImpl)flist.get(i).getChildNodes().item(findex)).getNodeValue();
+			String second = ((TextImpl)flist.get(j).getChildNodes().item(sindex)).getNodeValue();
+			if(first.compareTo(second) < 0){
+				flist.remove(i);
+				++i;
+			}
+			else if(first.compareTo(second) > 0){
+				slist.remove(j);
+				++j;
+			}
+			else{
+				++i;
+				++j;
+			}		
+		}
+		while(i < fsize){
+			flist.remove(i);
+			++i;
+		}
+		while(j < ssize){
+			slist.remove(j);
+			++j;
+		}
 	}
 }
