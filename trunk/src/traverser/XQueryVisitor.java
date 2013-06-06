@@ -1083,7 +1083,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 						for(int x = 0; x < s; ++x){
 							newTag.appendChild(createNode(doc, schildren.item(x)));
 						}
-						//Coordinator.printNode(newTag);
 						res.add(newTag);
 					}
 					if(next == ssize - 1)
