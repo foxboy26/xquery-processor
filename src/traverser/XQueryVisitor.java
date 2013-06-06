@@ -314,7 +314,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			NodeList children = n.getChildNodes();
 			int numOfChildren = children.getLength();
 			for (int i = 0; i < numOfChildren; i++) {
-				if (children.item(i).getNodeName().equalsIgnoreCase(node.tagName))
+				if (children.item(i).getNodeName().equals(node.tagName))
 					resultSet.add(children.item(i));
 			}
 		}
