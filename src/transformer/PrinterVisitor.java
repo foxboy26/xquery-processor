@@ -56,7 +56,9 @@ public class PrinterVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTStart node, Object data) {
 		// TODO Auto-generated method stub
-		return node.childrenAccept(this, data);
+		node.childrenAccept(this, data);
+		System.out.println();
+		return null;
 	}
 
 	@Override
@@ -112,7 +114,7 @@ public class PrinterVisitor implements XQueryParserVisitor {
 	public Object visit(ASTRelComma node, Object data) {
 		// TODO Auto-generated method stub
 		node.jjtGetChild(0).jjtAccept(this, data);
-		System.out.println(",");
+		System.out.print(", ");
 		node.jjtGetChild(1).jjtAccept(this, data);
 		return null;
 	}
@@ -223,14 +225,18 @@ public class PrinterVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTForClause node, Object data) {
 		// TODO Auto-generated method stub
+		int indent = (Integer) data;
+		printIndent(indent);
 		System.out.print("for ");
 		int numOfChild = node.jjtGetNumChildren();
 		boolean first = true;
 		for (int i = 0; i < numOfChild; i++) {
 			if (first)
 				first = false;
-			else
+			else {
 				System.out.println(",");
+				printIndent(indent + 2);
+			}
 			node.jjtGetChild(i).jjtAccept(this, data);
 		}
 		System.out.println();
@@ -240,21 +246,30 @@ public class PrinterVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTIn node, Object data) {
 		// TODO Auto-generated method stub
-		node.jjtGetChild(0).jjtAccept(this, data);
+		node.jjtGetChild(0).jjtAccept(this, 0);
 		System.out.print(" in ");
-		node.jjtGetChild(1).jjtAccept(this, data);
+		node.jjtGetChild(1).jjtAccept(this, 0);
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTLetClause node, Object data) {
 		// TODO Auto-generated method stub
+		int indent = (Integer) data;
+		printIndent(indent);
 		System.out.print("let ");
 		int numOfChild = node.jjtGetNumChildren();
+		boolean first = true;
 		for (int i = 0; i < numOfChild; i++) {
+			if (first)
+				first = false;
+			else {
+				System.out.println(",");
+				printIndent(indent + 2);
+			}
 			node.jjtGetChild(i).jjtAccept(this, data);
-			System.out.println(",");
 		}
+		System.out.println();
 		return null;
 	}
 
@@ -270,8 +285,10 @@ public class PrinterVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTWhereClause node, Object data) {
 		// TODO Auto-generated method stub
+		int indent = (Integer) data;
+		printIndent(indent);
 		System.out.print("where ");
-		node.childrenAccept(this, data);
+		node.childrenAccept(this, 0);
 		System.out.println();
 		return null;
 	}
@@ -279,8 +296,10 @@ public class PrinterVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTReturnClause node, Object data) {
 		// TODO Auto-generated method stub
-		System.out.print("return ");
-		node.childrenAccept(this, data);
+		int indent = (Integer) data;
+		printIndent(indent);
+		System.out.println("return");
+		node.childrenAccept(this, indent + 2);
 		return null;
 	}
 
@@ -338,6 +357,8 @@ public class PrinterVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTVar node, Object data) {
 		// TODO Auto-generated method stub
+		int indent = (Integer) data;
+		printIndent(indent);
 		System.out.print(node.varName);
 		return null;
 	}
@@ -370,24 +391,33 @@ public class PrinterVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTNewtag node, Object data) {
 		// TODO Auto-generated method stub
+		int indent = (Integer) data;
+		printIndent(indent);
 		System.out.println("<" + node.tagName + "> {");
-		node.childrenAccept(this, data);
-		System.out.println("\n} </" + node.tagName + ">");
+		node.childrenAccept(this, indent + 2);
+		System.out.println();
+		printIndent(indent);
+		System.out.print("} </" + node.tagName + ">");
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTJoin node, Object data) {
 		// TODO Auto-generated method stub
+		int indent = (Integer) data;
+		
+		printIndent(indent);
 		System.out.println("join (");
-		node.jjtGetChild(0).jjtAccept(this, data);
+		node.jjtGetChild(0).jjtAccept(this, indent + 2);
 		System.out.println(",");
-		node.jjtGetChild(1).jjtAccept(this, data);
+		node.jjtGetChild(1).jjtAccept(this, indent + 2);
 		System.out.println(",");
-		node.jjtGetChild(2).jjtAccept(this, data);
-		System.out.println(",");
-		node.jjtGetChild(3).jjtAccept(this, data);
-		System.out.print("\n)");
+		node.jjtGetChild(2).jjtAccept(this, indent + 2);
+		System.out.print(", ");
+		node.jjtGetChild(3).jjtAccept(this, 0);
+		System.out.println();
+		printIndent(indent);
+		System.out.print(")");
 		return null;
 	}
 
@@ -401,6 +431,9 @@ public class PrinterVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTLX node, Object data) {
 		// TODO Auto-generated method stub
+		int indent = (Integer) data;
+
+		printIndent(indent);
 		node.childrenAccept(this, data);
 		return null;
 	}
@@ -408,6 +441,9 @@ public class PrinterVisitor implements XQueryParserVisitor {
 	@Override
   public Object visit(ASTJoinList node, Object data) {
 	  // TODO Auto-generated method stub
+		int indent = (Integer) data;
+		printIndent(indent);
+		
 		System.out.print("[");
 		int numOfChild = node.jjtGetNumChildren();
 		boolean first = true;
@@ -421,4 +457,9 @@ public class PrinterVisitor implements XQueryParserVisitor {
 		System.out.print("]");
 	  return null;
   }
+	
+	private void printIndent(int indent) {
+		for (int i = 0; i < indent; i++)
+			System.out.print(" ");
+	}
 }
