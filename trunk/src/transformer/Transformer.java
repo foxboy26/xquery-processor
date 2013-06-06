@@ -31,6 +31,8 @@ public class Transformer {
 		astContext = ((RewriteVisitor) visitor).astContext;
 		partitionRoot = ((RewriteVisitor) visitor).root;
 		
+		partitionRoot.dump();
+		
 		partitions = this.getPartitions(partitionRoot);
 		
 		this.constructGraph();
@@ -386,39 +388,44 @@ public class Transformer {
 		newtagNode.jjtSetParent(returnNode);
 
 		ASTXQueryComma xcommaNode = new ASTXQueryComma(0);
-//		newtagNode.jjtAddChild(xcommaNode, 0);
 
-		int size = nodelist.size();
+		ArrayList<Node> returnNodelist = new ArrayList<Node> ();
+		for (Node n : nodelist)
+			if (n.isReturn)
+				returnNodelist.add(n);
 		
+		int size = returnNodelist.size();
 		boolean first = true;
-
 		for (int i = 0; i < size - 1; ++i) {
-			Node n = nodelist.get(i);
+			Node n = returnNodelist.get(i);
 			ASTXQueryComma curComma = new ASTXQueryComma(0);
 			
-			if (n.isReturn) {
-				String name = n.tagName;
-				ASTNewtag newtag = new ASTNewtag(0);
-				newtag.tagName = name.substring(1);
-				ASTVar var = new ASTVar(0);
-				var.varName = name;
-				newtag.jjtAddChild(var, 0);
-				var.jjtSetParent(newtag);
-				curComma.jjtAddChild(newtag, 0);
-				newtag.jjtSetParent(curComma);
-				if(!first){
-					xcommaNode.jjtAddChild(curComma, 1);
-					curComma.jjtSetParent(xcommaNode);
-				}
-				else{
-					newtagNode.jjtAddChild(curComma, 0);
-					curComma.jjtSetParent(newtagNode);
-					first = false;
-				}
-				xcommaNode = curComma;
+			System.out.println("return clause " + n);
+			
+			String name = n.tagName;
+			ASTNewtag newtag = new ASTNewtag(0);
+			newtag.tagName = name.substring(1);
+			ASTVar var = new ASTVar(0);
+			var.varName = name;
+			newtag.jjtAddChild(var, 0);
+			var.jjtSetParent(newtag);
+			curComma.jjtAddChild(newtag, 0);
+			newtag.jjtSetParent(curComma);
+			if(!first){
+				xcommaNode.jjtAddChild(curComma, 1);
+				curComma.jjtSetParent(xcommaNode);
 			}
+			else{
+				newtagNode.jjtAddChild(curComma, 0);
+				curComma.jjtSetParent(newtagNode);
+				first = false;
+			}
+			xcommaNode = curComma;
 		}
-		Node n = nodelist.get(size - 1);
+
+		Node n = returnNodelist.get(size - 1);
+		System.out.println("return clause " + n);
+
 		String name = n.tagName;
 		ASTNewtag newtag = new ASTNewtag(0);
 		newtag.tagName = name.substring(1);
@@ -434,6 +441,7 @@ public class Transformer {
 			newtagNode.jjtAddChild(newtag, 0);
 			newtag.jjtSetParent(newtagNode);
 		}
+		
 		return returnNode;
 	}
 
