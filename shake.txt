@@ -1,0 +1,6 @@
+for $s in doc("j_caesar.xml")//SPEAKER/text(), $a in doc("j_caesar.xml")//ACT, $s2 in $a/SCENE/SPEECH/SPEAKER/text()
+where $s2 eq $s
+return <speaks>{
+  <who>{$s}</who>,
+  <when>{$a/TITLE/text()}</when>
+} </speaks>
