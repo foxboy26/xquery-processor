@@ -5,7 +5,7 @@ package parser;
 public
 class ASTRelSlash extends SimpleNode {
   public ASTRelSlash(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTRELSLASH);
   }
 
   public ASTRelSlash(XQueryParser p, int id) {

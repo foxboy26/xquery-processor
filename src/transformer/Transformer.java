@@ -37,7 +37,7 @@ public class Transformer {
 		
 		ASTStart newRoot = this.rewriteTree();
 		
-		newRoot.dump(null);
+		newRoot.dump(">");
 		
 		return newRoot;
 	}
@@ -115,24 +115,47 @@ public class Transformer {
 	private void replaceNode(SimpleNode node){
 		SimpleNode parent = (SimpleNode) node.jjtGetParent();
 		int childNum;
-		if(node instanceof ASTVar){			
-			int index = 0;
-			childNum = parent.jjtGetNumChildren();
-			for(int i = 0; i < childNum; ++i){
-				if(parent.jjtGetChild(i) == node){
-					index = i;
-					break;
-				}
-			}
-			ASTXQuerySlash xslash = new ASTXQuerySlash(0);
+		if(node instanceof ASTVar){
 			ASTVar varNode = new ASTVar("$tuple");
 			ASTTagName tagNode = new ASTTagName(((ASTVar) node).varName.substring(1));
-			parent.jjtAddChild(xslash, index);
-			xslash.jjtSetParent(parent);
-			xslash.jjtAddChild(varNode, 0);
-			varNode.jjtSetParent(xslash);
-			xslash.jjtAddChild(tagNode, 1);
-			tagNode.jjtSetParent(xslash);
+			ASTStar starNode = new ASTStar(0);
+			
+			// rotate the ast tree
+			if (parent.jjtGetNumChildren() == 2 && parent.jjtGetChild(1) instanceof ASTRelSlash) {
+				ASTRelSlash relslash = new ASTRelSlash(0);
+				ASTRelSlash relslash2 = new ASTRelSlash(0);
+
+				relslash2.jjtAddChild(starNode, 0);
+				starNode.jjtSetParent(relslash2);
+				relslash2.jjtAddChild(parent.jjtGetChild(1), 1);
+				parent.jjtGetChild(1).jjtSetParent(relslash2);
+				
+				relslash.jjtAddChild(tagNode, 0);
+				tagNode.jjtSetParent(relslash);
+				relslash.jjtAddChild(relslash2, 1);
+				relslash2.jjtSetParent(relslash);
+				
+				parent.jjtAddChild(varNode, 0);
+				varNode.jjtSetParent(parent);
+				parent.jjtAddChild(relslash, 1);
+				relslash.jjtSetParent(parent);
+			} else {
+				ASTXQuerySlash xslash = new ASTXQuerySlash(0);
+				ASTRelSlash relslash = new ASTRelSlash(0);
+				
+				xslash.jjtAddChild(varNode, 0);
+				varNode.jjtSetParent(xslash);
+				xslash.jjtAddChild(relslash, 1);
+				relslash.jjtSetParent(xslash);
+				
+				relslash.jjtAddChild(tagNode, 0);
+				tagNode.jjtSetParent(relslash);
+				relslash.jjtAddChild(starNode, 1);
+				starNode.jjtSetParent(relslash);
+				
+				parent.jjtAddChild(xslash, 0);
+				xslash.jjtSetParent(parent);
+			}
 		}
 		else{
 			childNum = node.jjtGetNumChildren();
