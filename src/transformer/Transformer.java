@@ -37,7 +37,7 @@ public class Transformer {
 		
 		ASTStart newRoot = this.rewriteTree();
 		
-		newRoot.dump(">");
+		//newRoot.dump(">");
 		
 		return newRoot;
 	}
