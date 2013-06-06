@@ -1046,9 +1046,55 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	
 	private ArrayList<Node> join(ArrayList<Node> flist, ArrayList<Node> slist, int[] findex, int[] sindex){
 		ArrayList<Node> res = new ArrayList<Node>();
-		int fsize = flist.size();
-		int ssize = slist.size();
-		int i = 0, j = 0;
+		
+		int attrNum = findex.length;
+		int attrNum2 = sindex.length;
+		System.out.println("1:" + attrNum);
+		System.out.println("2:" + attrNum2);
+		HashMap<String, ArrayList<Node>> map = new HashMap<String, ArrayList<Node>>();
+		
+		for(Node n: flist){
+			String key = "";
+			for(int i: findex)
+				key += n.getChildNodes().item(i).getFirstChild().getNodeValue() + ":";
+			ArrayList<Node> value = map.get(key);
+			if(value == null){
+				value = new ArrayList<Node>();
+				value.add(n);
+				map.put(key, value);
+			}
+			else{
+				value.add(n);
+			}
+		}
+		
+		int h = 0;
+		for(Node n: slist){
+			System.out.println(h++);
+			String key = "";
+			NodeList schildren = n.getChildNodes();
+			for(int i: sindex)
+				key += schildren.item(i).getFirstChild().getNodeValue() + ":";
+			ArrayList<Node> value = map.get(key);
+			if(value != null){
+				for(Node m: value){
+					NodeList fchildren = m.getChildNodes();
+					Document doc = new DocumentImpl();
+					Element newTag = doc.createElement("tuple");
+					int s = fchildren.getLength();
+					for (int x = 0; x < s; ++x) {
+						newTag.appendChild(createNode(doc, fchildren.item(x)));
+					}
+					s = schildren.getLength();
+					for(int x = 0; x < s; ++x){
+						newTag.appendChild(createNode(doc, schildren.item(x)));
+					}
+					res.add(newTag);
+					
+				}
+			}
+		}
+		/*int i = 0, j = 0;
 		System.out.println("fsize:" + fsize);
 		System.out.println("ssize:" + ssize);
 		while(i < fsize && j < ssize){
@@ -1094,15 +1140,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 				} while ((schildren.item(sindex[0]).getFirstChild().getNodeValue()).equals(fchildren.item(findex[0]).getFirstChild().getNodeValue()));
 				++i;
 			}		
-		}
-/*		while(i < fsize){
-			flist.remove(i);
-			++i;
-		}
-		while(j < ssize){
-			slist.remove(j);
-			++j;
 		}*/
+		System.out.println("haha");
 		return res;
 	}
 }
