@@ -31,7 +31,7 @@ public class Transformer {
 		astContext = ((RewriteVisitor) visitor).astContext;
 		partitionRoot = ((RewriteVisitor) visitor).root;
 		
-		partitionRoot.dump();
+		//partitionRoot.dump();
 		
 		partitions = this.getPartitions(partitionRoot);
 		
@@ -122,8 +122,17 @@ public class Transformer {
 			ASTTagName tagNode = new ASTTagName(((ASTVar) node).varName.substring(1));
 			ASTStar starNode = new ASTStar(0);
 			
+			int index = 0;		
+			childNum = parent.jjtGetNumChildren();		
+			for(int i = 0; i < childNum; ++i){		
+				if(parent.jjtGetChild(i) == node){		
+					index = i;		
+					break;		
+				}		
+			}
+			
 			// rotate the ast tree
-			if (parent.jjtGetNumChildren() == 2 && parent.jjtGetChild(1) instanceof ASTRelSlash) {
+			/*if (parent.jjtGetNumChildren() == 2 && parent.jjtGetChild(1) instanceof ASTRelSlash) {
 				ASTRelSlash relslash = new ASTRelSlash(0);
 				ASTRelSlash relslash2 = new ASTRelSlash(0);
 
@@ -141,7 +150,7 @@ public class Transformer {
 				varNode.jjtSetParent(parent);
 				parent.jjtAddChild(relslash, 1);
 				relslash.jjtSetParent(parent);
-			} else {
+			} else {*/
 				ASTXQuerySlash xslash = new ASTXQuerySlash(0);
 				ASTRelSlash relslash = new ASTRelSlash(0);
 				
@@ -155,9 +164,9 @@ public class Transformer {
 				relslash.jjtAddChild(starNode, 1);
 				starNode.jjtSetParent(relslash);
 				
-				parent.jjtAddChild(xslash, 0);
+				parent.jjtAddChild(xslash, index);
 				xslash.jjtSetParent(parent);
-			}
+			//}
 		}
 		else{
 			childNum = node.jjtGetNumChildren();
