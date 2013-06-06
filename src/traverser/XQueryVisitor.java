@@ -734,6 +734,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0)
 				.jjtAccept(this, context);
 
+		System.out.println(node.tagName);
 		Document doc = new DocumentImpl();
 		Element newTag = doc.createElement(node.tagName);
 		for (Node n : resultSet) {
@@ -1052,8 +1053,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		while(i < fsize && j < ssize){
 			NodeList fchildren = flist.get(i).getChildNodes();
 			NodeList schildren = slist.get(j).getChildNodes();
-			String first = ((TextImpl)fchildren.item(findex[0]).getFirstChild()).getNodeValue();
-			String second = ((TextImpl)schildren.item(sindex[0]).getFirstChild()).getNodeValue();
+			String first = ((TextImpl) fchildren.item(findex[0]).getFirstChild()).getNodeValue();
+			String second = ((TextImpl) schildren.item(sindex[0]).getFirstChild()).getNodeValue();
 			if(first.compareTo(second) < 0){
 				++i;
 			}
