@@ -9,8 +9,9 @@ int main(int argc, char* argv[])
   int order_num = atoi(argv[2]);
   int prod_num = atoi(argv[3]);
 
-  ofstream fout("user.xml");
-
+  ofstream fout;
+  
+  fout.open("user.xml");
   fout << "<user>" << endl;
   for (int i = 0; i < user_num; i++)
   {
@@ -20,7 +21,6 @@ int main(int argc, char* argv[])
     fout << "</tuple>" << endl;
   }
   fout << "</user>" << endl;
-
   fout.close();
 
   fout.open("order.xml");
