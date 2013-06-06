@@ -57,28 +57,22 @@ public class Coordinator {
 
 	public static void print(ArrayList<Node> result) {
 		PrintWriter writer = new PrintWriter(System.out);
-		XMLSerializer serializer = new XMLSerializer(writer, new OutputFormat(
-		    Method.XML, "UTF-8", true));
+		XMLSerializer serializer = new XMLSerializer(
+				writer, new OutputFormat(Method.XML, "UTF-8", true));
 		boolean first = true;
 		for (Node n : result) {
 			try {
-				if (first) {
-					if (n instanceof DocumentImpl)
-						serializer.serialize((Document) n);
-					else if (n instanceof ElementImpl)
-						serializer.serialize((Element) n);
-					else if (n instanceof TextImpl)
-						System.out.println(n.getNodeValue());
+				if (first)
 					first = false;
-				} else {
+				else
 					System.out.println("------------------------");
-					if (n instanceof DocumentImpl)
-						serializer.serialize((Document) n);
-					else if (n instanceof ElementImpl)
-						serializer.serialize((Element) n);
-					else if (n instanceof TextImpl)
-						System.out.println(n.getNodeValue());
-				}
+				
+				if (n instanceof DocumentImpl)
+					serializer.serialize((Document) n);
+				else if (n instanceof ElementImpl)
+					serializer.serialize((Element) n);
+				else if (n instanceof TextImpl)
+					System.out.println(n.getNodeValue());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
