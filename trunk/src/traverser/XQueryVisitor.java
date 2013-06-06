@@ -734,7 +734,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0)
 				.jjtAccept(this, context);
 
-		System.out.println(node.tagName);
+		//System.out.println(node.tagName);
 		Document doc = new DocumentImpl();
 		Element newTag = doc.createElement(node.tagName);
 		for (Node n : resultSet) {
