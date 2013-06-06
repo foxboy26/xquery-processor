@@ -1,12 +1,12 @@
-for   $b1 in doc("user.xml")/user,
-	  $uage in $b1/tuple/age/text(),
-	  $uid in $b1/tuple/id/text(),
-	  $b2 in doc("product.xml")/product,
-	  $pname in $b2/tuple/name/text(),
-	  $pid in $b2/tuple/id/text(),
-	  $b3 in doc("order.xml")/order,
-	  $ouid in $b3/tuple/userid/text(),
-	  $opid in $b3/tuple/product/text()
-where $uage eq "23" AND 
+for   $b1 in doc("user.xml")/user/tuple,
+	  $uage in $b1/age/text(),
+	  $uid in $b1/id/text(),
+	  $b2 in doc("product.xml")/product/tuple,
+	  $pname in $b2/name/text(),
+	  $pid in $b2/id/text(),
+	  $b3 in doc("order.xml")/order/tuple,
+	  $ouid in $b3/userid/text(),
+	  $opid in $b3/product/text()
+where $uage eq "2" AND 
   $ouid eq $uid AND $opid eq $pid
 return <triplet> {$uage, $uid, $pid, $pname} </triplet>
