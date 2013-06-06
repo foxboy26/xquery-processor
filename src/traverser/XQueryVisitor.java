@@ -287,8 +287,9 @@ public class XQueryVisitor implements XQueryParserVisitor {
 
 		for (Node n : (ArrayList<Node>) data) {
 			resultSet.add(n.getFirstChild());
+		//	System.out.println(((TextImpl)n.getFirstChild()).getNodeValue());
 		}
-
+		
 		return resultSet;
 	}
 
@@ -436,6 +437,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 				.jjtAccept(this, context);
 
 		// Context newContext = context.add(varNode.varName, resultSet);
+		
+		if(resultSet == null)
+			return null;
+		
 		int size = resultSet.size();
 
 		// Find out the index of current node
@@ -467,7 +472,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 
 			}
 
-			if (index == 0){
+			if (index == 0 && finalSet.size() > level){
 				ArrayList<Node> nodes = finalSet.get(level);
 				resultSet.clear();
 				for(Node n: nodes)
@@ -566,6 +571,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 				data));
 		
 		//printFinalSet("Return");
+		
+		for (Node n : finalSet.get(level)) {
+			System.out.println(n.getChildNodes().item(1).getFirstChild().getNodeValue());
+		}
 		
 		return null;
 	}
@@ -732,6 +741,11 @@ public class XQueryVisitor implements XQueryParserVisitor {
 
 		resultSet.clear();
 		resultSet.add(newTag);
+		
+		
+		/*for (Node n : resultSet) {
+			System.out.println(n.getFirstChild().getNodeValue());
+		}*/
 
 		return resultSet;
 	}
@@ -748,18 +762,27 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		int s = finalSet.size();
 		
 		while( s > level){
-			finalSet.get(--s).clear();
+			finalSet.remove(--s);
 		}
 		
 		node.jjtGetChild(0).jjtAccept(this, data);
 		
 		//printFinalSet("FLWR");
 		
-		ArrayList<Node> nodes = finalSet.get(level--);
+		--level;
 		
+		if(finalSet.size() < level)
+			return null;
+
+		ArrayList<Node> nodes = finalSet.get(level+1);
+		
+		for(Node n: nodes){
+			System.out.println(n.getChildNodes().item(1).getNodeName() + " " + n.getChildNodes().item(1).getFirstChild().getNodeValue());
+		}
+	
 		for(Node n: nodes)
 			res.add(n);
-		
+	
 		return res;
 	}
 
@@ -782,12 +805,18 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	  ArrayList<Node> seclist = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, data);
 	  String[] firstAttrList = (String[]) node.jjtGetChild(2).jjtAccept(this, data);
 	  String[] secAttrList = (String[]) node.jjtGetChild(3).jjtAccept(this, data);
+	  ArrayList<Node> res = new ArrayList<Node>();
 	  
 	  int attrNum = firstAttrList.length;
 	  int[] findex = new int[attrNum];
 	  int[] sindex = new int[attrNum];
 	  
-	  if(firstlist.size() > 0 && seclist.size() > 0){
+	 /* for(Node n: firstlist){
+		  Node no = n.getChildNodes().item(findex[0]).getFirstChild();
+		  System.out.println(no.getNodeValue());
+	  }*/
+	  
+	  if(firstlist != null && seclist != null){
 		  Node tmp = firstlist.get(0);
 		  for(int i = 0; i < attrNum; ++i){
 			  findex[i] = getAttrIndex(tmp, firstAttrList[i]);
@@ -796,13 +825,25 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		  for(int i = 0; i < attrNum; ++i){
 			  sindex[i] = getAttrIndex(tmp, secAttrList[i]);
 		  } 
+	  
+		  
+		  
+		 /* for(Node n: firstlist){
+			  Node no = n.getChildNodes().item(findex[0]).getFirstChild();
+			  System.out.println(no.getNodeValue());
+		  }*/
+		  sort(firstlist, findex[0]);
+		  for(Node n: firstlist){
+			  Node no = n.getChildNodes().item(findex[0]).getFirstChild();
+			  System.out.println(no.getNodeValue());
+		  }
+		  sort(seclist, sindex[0]);
+		  res = join(firstlist, seclist, findex, sindex);
+		    
+		  return res;
 	  }
 	  
-	  sort(firstlist, findex[0]);
-	  sort(seclist, sindex[0]);
-	  join(firstlist, seclist, findex, sindex);
-	    
-	  return firstlist;
+	  return null;
   }
 
 	@Override
@@ -1002,8 +1043,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
         });
 	}
 	
-	private void join(ArrayList<Node> flist, ArrayList<Node> slist, int[] findex, int[] sindex){
-		
+	private ArrayList<Node> join(ArrayList<Node> flist, ArrayList<Node> slist, int[] findex, int[] sindex){
+		ArrayList<Node> res = new ArrayList<Node>();
 		int fsize = flist.size();
 		int ssize = slist.size();
 		int i = 0, j = 0;
@@ -1013,39 +1054,51 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			String first = ((TextImpl)fchildren.item(findex[0]).getFirstChild()).getNodeValue();
 			String second = ((TextImpl)schildren.item(sindex[0]).getFirstChild()).getNodeValue();
 			if(first.compareTo(second) < 0){
-				flist.remove(i);
 				++i;
 			}
 			else if(first.compareTo(second) > 0){
 				++j;
 			}
 			else{
-				int size = findex.length;
-				int k = 1;
-				while(k < size){
-					first = ((TextImpl)fchildren.item(findex[k]).getFirstChild()).getNodeValue();
-					second = ((TextImpl)schildren.item(sindex[k]).getFirstChild()).getNodeValue();
-					if(!first.equals(second))
-						break;
-				}
-				if(k == size){
-					int s = schildren.getLength();
-					Node cur = flist.get(i);
-					for(int x = 0; x < s; ++s){
-						cur.appendChild(schildren.item(x));
+				int next = j;
+				
+				do{
+					int size = findex.length;
+					int k = 1;
+					while(k < size){
+						first = ((TextImpl)fchildren.item(findex[k]).getFirstChild()).getNodeValue();
+						second = ((TextImpl)schildren.item(sindex[k]).getFirstChild()).getNodeValue();
+						if(!first.equals(second))
+							break;
 					}
-				}
+					if(k == size){
+						Document doc = new DocumentImpl();
+						Element newTag = doc.createElement("tuple");
+						int s = fchildren.getLength();
+						for (int x = 0; x < s; ++x) {
+							newTag.appendChild(createNode(doc, fchildren.item(x)));
+						}
+						s = schildren.getLength();
+						for(int x = 0; x < s; ++x){
+							newTag.appendChild(createNode(doc, schildren.item(x)));
+						}
+						res.add(newTag);
+					}
+					if(next == ssize - 1)
+						break;
+					schildren = slist.get(++next).getChildNodes();
+				} while ((schildren.item(sindex[0]).getFirstChild().getNodeValue()).equals(fchildren.item(findex[0]).getFirstChild().getNodeValue()));
 				++i;
-				++j;
 			}		
 		}
-		while(i < fsize){
+/*		while(i < fsize){
 			flist.remove(i);
 			++i;
 		}
-/*		while(j < ssize){
+		while(j < ssize){
 			slist.remove(j);
 			++j;
 		}*/
+		return res;
 	}
 }
