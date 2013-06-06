@@ -5,7 +5,7 @@ package parser;
 public
 class ASTStar extends SimpleNode {
   public ASTStar(int id) {
-    super(id);
+    super(XQueryParserTreeConstants.JJTSTAR);
   }
 
   public ASTStar(XQueryParser p, int id) {

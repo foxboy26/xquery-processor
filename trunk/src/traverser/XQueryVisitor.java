@@ -253,7 +253,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			NodeList children = n.getChildNodes();
 			int numOfChildren = children.getLength();
 			for (int i = 0; i < numOfChildren; i++) {
-				if (children.item(i) instanceof ElementImpl)
+				if (children.item(i) instanceof ElementImpl ||
+						(children.item(i) instanceof TextImpl && children.item(i).getNodeValue().trim().length() > 0))
 					resultSet.add(children.item(i));
 			}
 		}
@@ -572,9 +573,9 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		
 		//printFinalSet("Return");
 		
-		for (Node n : finalSet.get(level)) {
+		/*for (Node n : finalSet.get(level)) {
 			System.out.println(n.getChildNodes().item(1).getFirstChild().getNodeValue());
-		}
+		}*/
 		
 		return null;
 	}
@@ -776,9 +777,9 @@ public class XQueryVisitor implements XQueryParserVisitor {
 
 		ArrayList<Node> nodes = finalSet.get(level+1);
 		
-		for(Node n: nodes){
+		/*for(Node n: nodes){
 			System.out.println(n.getChildNodes().item(1).getNodeName() + " " + n.getChildNodes().item(1).getFirstChild().getNodeValue());
-		}
+		}*/
 	
 		for(Node n: nodes)
 			res.add(n);
@@ -835,7 +836,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		  sort(firstlist, findex[0]);
 		  for(Node n: firstlist){
 			  Node no = n.getChildNodes().item(findex[0]).getFirstChild();
-			  System.out.println(no.getNodeValue());
+			  //System.out.println(no.getNodeValue());
 		  }
 		  sort(seclist, sindex[0]);
 		  res = join(firstlist, seclist, findex, sindex);
@@ -1082,6 +1083,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 						for(int x = 0; x < s; ++x){
 							newTag.appendChild(createNode(doc, schildren.item(x)));
 						}
+						//Coordinator.printNode(newTag);
 						res.add(newTag);
 					}
 					if(next == ssize - 1)

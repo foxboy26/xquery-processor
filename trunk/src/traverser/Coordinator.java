@@ -36,18 +36,16 @@ public class Coordinator {
 			//if (transformer.isRewrittable) {
 				root = transformer.rewrite();
 				System.out.println("Optimized plan: ");
-				root.jjtAccept(new PrinterVisitor(), null);
+				root.jjtAccept(new PrinterVisitor(), 0);
 			//}
-			
-			System.out.println("Print over!");	
 				
 			Context context = new Context();
 			XQueryParserVisitor visitor = new XQueryVisitor();
 			ArrayList<Node> resultSet = 
 					(ArrayList<Node>) root.jjtAccept(visitor, context);
 
-			System.out.println("Result:");
-			print(resultSet);
+			System.out.println("XQuery result:");
+		  print(resultSet);
 		} catch (Exception e) {
 			System.out.println("Oops.");
 			System.out.println(e.getMessage());
@@ -77,6 +75,23 @@ public class Coordinator {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	public static void printNode(Node node) {
+		PrintWriter writer = new PrintWriter(System.out);
+		XMLSerializer serializer = new XMLSerializer(
+				writer, new OutputFormat(Method.XML, "UTF-8", true));
+		try {
+			if (node instanceof DocumentImpl)
+				serializer.serialize((Document) node);
+			else if (node instanceof ElementImpl)
+				serializer.serialize((Element) node);
+			else if (node instanceof TextImpl)
+				System.out.println(node.getNodeValue());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }
