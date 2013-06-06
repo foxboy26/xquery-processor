@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xerces.dom.ElementImpl;
@@ -39,13 +40,19 @@ public class Coordinator {
 				root.jjtAccept(new PrinterVisitor(), 0);
 			//}
 				
+			Date start = new Date();	
+				
 			Context context = new Context();
 			XQueryParserVisitor visitor = new XQueryVisitor();
 			ArrayList<Node> resultSet = 
 					(ArrayList<Node>) root.jjtAccept(visitor, context);
 
 			System.out.println("XQuery result:");
-		  print(resultSet);
+			printResult(resultSet);
+		  
+		  double time = ((double) (new Date().getTime() - start.getTime())) / 1000;
+		  
+		  System.out.println(resultSet.size() + " results in set (" + String.format("%.2f", time) + " sec)");
 		} catch (Exception e) {
 			System.out.println("Oops.");
 			System.out.println(e.getMessage());
@@ -53,24 +60,19 @@ public class Coordinator {
 		}
 	}
 
-	public static void print(ArrayList<Node> result) {
+	public static void printResult(ArrayList<Node> result) {
 		PrintWriter writer = new PrintWriter(System.out);
 		XMLSerializer serializer = new XMLSerializer(
 				writer, new OutputFormat(Method.XML, "UTF-8", true));
-		boolean first = true;
 		for (Node n : result) {
 			try {
-				if (first)
-					first = false;
-				else
-					System.out.println("------------------------");
-				
 				if (n instanceof DocumentImpl)
 					serializer.serialize((Document) n);
 				else if (n instanceof ElementImpl)
 					serializer.serialize((Element) n);
 				else if (n instanceof TextImpl)
 					System.out.println(n.getNodeValue());
+				System.out.println("------------------------");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
