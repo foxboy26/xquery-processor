@@ -55,6 +55,8 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	
 	HashMap<String, Node> context = new HashMap<String, Node> ();
 	HashMap<String, SimpleNode> astContext = new HashMap<String, SimpleNode> ();
+
+	public boolean isRewritable = true;
 	
 	@Override
 	public Object visit(SimpleNode node, Object data) {
@@ -104,6 +106,7 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTRelFilter node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
@@ -140,6 +143,7 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTParen node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
@@ -152,42 +156,49 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTFilterAnd node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTFilterOr node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTFilterEq node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTFilterIs node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTFilterRelPath node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTFilterParen node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTFilterNot node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
@@ -222,6 +233,7 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTLetClause node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
@@ -265,6 +277,7 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTCondOr node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable  = false;
 		return null;
 	}
 
@@ -289,18 +302,21 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTCondIs node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTCondEmpty node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
 	@Override
 	public Object visit(ASTCondSome node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
@@ -357,18 +373,21 @@ public class RewriteVisitor implements XQueryParserVisitor {
 	@Override
 	public Object visit(ASTLX node, Object data) {
 		// TODO Auto-generated method stub
+		isRewritable = false;
 		return null;
 	}
 
 	@Override
   public Object visit(ASTJoin node, Object data) {
 	  // TODO Auto-generated method stub
+		isRewritable = false;
 	  return null;
   }
 
 	@Override
   public Object visit(ASTJoinList node, Object data) {
 	  // TODO Auto-generated method stub
+		isRewritable = false;
 	  return null;
   }
 

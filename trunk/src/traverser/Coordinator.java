@@ -26,26 +26,39 @@ import transformer.Transformer;
 public class Coordinator {
 	public static void main(String args[]) {
 
-		XQueryParser t;
-		
+		String fileName;
+		if (args.length == 1) {
+			fileName = args[0];
+		} else {
+			fileName = "inputForJoin";
+		}
 		try {
-			t = new XQueryParser(new FileInputStream(new File("query2")));
+			XQueryParser t = new XQueryParser(new FileInputStream(new File(fileName)));
 			ASTStart root = t.Start();
 			root.dump(">");
 
+			/* query rewritten */
+			ASTStart newRoot = null;
 			Transformer transformer = new Transformer(root);
-			if (transformer.isRewrittable) {
-				root = transformer.rewrite();
-				System.out.println("Optimized plan: ");
-				root.jjtAccept(new PrinterVisitor(), 0);
-			}
-				
-			Date start = new Date();	
-				
+			newRoot = transformer.rewrite();
+			
 			Context context = new Context();
 			XQueryParserVisitor visitor = new XQueryVisitor();
-			ArrayList<Node> resultSet = 
-					(ArrayList<Node>) root.jjtAccept(visitor, context);
+			ArrayList<Node> resultSet;
+			
+			Date start = new Date();	
+			
+			if (newRoot != null) {
+				System.out.println("Optimized plan: ");
+				
+				newRoot.jjtAccept(new PrinterVisitor(), 0);
+				
+				resultSet = (ArrayList<Node>) newRoot.jjtAccept(visitor, context);
+			} else {
+				System.out.println("Query cannot be rewritten, execute original plan.");
+				
+				resultSet = (ArrayList<Node>) root.jjtAccept(visitor, context);
+			}
 
 			printResult(resultSet);
 			

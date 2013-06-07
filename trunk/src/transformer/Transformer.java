@@ -24,18 +24,33 @@ public class Transformer {
 	
 	public ASTStart rewrite() {
 		
-		XQueryParserVisitor visitor = new RewriteVisitor();
-		root.jjtAccept(visitor, null);
-		System.out.println();
+		RewriteVisitor rewriteVisitor = new RewriteVisitor();
+		root.jjtAccept(rewriteVisitor, null);
+
+		if (!rewriteVisitor.isRewritable) {
+				System.out.println("Non-core syntax detected, rewrite failed.");
+				return null;
+	  }
 		
-		astContext = ((RewriteVisitor) visitor).astContext;
-		partitionRoot = ((RewriteVisitor) visitor).root;
+		astContext = rewriteVisitor.astContext;
+		partitionRoot = rewriteVisitor.root;
 		
-		//partitionRoot.dump();
+		if (partitionRoot == null) {
+			System.out.println("Construct partition graph failed.");
+			return null;
+		}
+		partitionRoot.dump();
 		
 		partitions = this.getPartitions(partitionRoot);
 		
+		if (partitions.size() < 2) {
+			System.out.println("Partition failed.");
+			return null;
+		}
+		
 		this.constructGraph();
+		
+		System.out.println(partitions);
 		
 		ASTStart newRoot = this.rewriteTree();
 		
@@ -50,6 +65,8 @@ public class Transformer {
 		
 		ASTFLWR flwr = new ASTFLWR(0);
 		ASTForClause forNode = rewriteFor();
+		if (forNode == null)
+			return null;
 		ASTReturnClause returnNode = rewriteReturn();
 		
 		newRoot.jjtAddChild(flwr, 0);
@@ -65,14 +82,15 @@ public class Transformer {
 	public ASTForClause rewriteFor() {
 		
 		int size = partitions.size();
+		
+		if(size < 2){
+			System.out.println("Only one partition exists, cannot rewrite.");
+			return null;
+		}
+		
 		int[] isVisit = new int[size];
 		
 		ASTForClause forNode = new ASTForClause(0);
-		
-		if(size < 2){
-			System.out.println("Unrewritable");
-			return null;
-		}
 		
 		int remain = size;
 		
@@ -102,7 +120,8 @@ public class Transformer {
 			}
 			
 			if(remain == 1){
-				System.out.println("Unrewritable");
+				//for (Node n : this.partitions.get(index))
+				System.out.println("remain 1 Unrewritable");
 				return null;
 			}		
 		}

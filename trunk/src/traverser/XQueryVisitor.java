@@ -1001,25 +1001,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		}
 	}
 
-	public Node createNode(Node n) {
-		Node newNode = null;
-		if (n instanceof ElementImpl)
-			newNode = document.createElement(((ElementImpl) n).getTagName());
-		else if (n instanceof TextImpl && n.getNodeValue().trim().length() > 0)
-			newNode = document.createTextNode(n.getNodeValue());
-
-		NodeList children = n.getChildNodes();
-		for (int i = 0; i < children.getLength(); i++) {
-			Node child = createNode(children.item(i));
-			if (child != null)
-				newNode.appendChild(child);
-		}
-
-		//Coordinator.printNode(newNode);
-		
-		return newNode;
-	}
-	
 	private void printFinalSet(String tag) {
 		System.out.println("[" + tag + "] finalSet: ");
 		for (ArrayList<Node> list : finalSet)
@@ -1037,14 +1018,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		return -1;
 	}
 	
-	private void sort(ArrayList<Node> list, final int index){
-		Collections.sort(list,new Comparator<Node>(){
-            public int compare(Node lnode, Node rnode) {
-                return ((TextImpl)lnode.getChildNodes().item(index).getFirstChild()).getNodeValue().compareTo(((TextImpl)rnode.getChildNodes().item(index).getFirstChild()).getNodeValue());
-            }
-        });
-	}
-	
 	private ArrayList<Node> join(ArrayList<Node> flist, ArrayList<Node> slist, int[] findex, int[] sindex){
 		
 		System.out.println("[join] begin");
@@ -1053,10 +1026,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		//Document doc = new DocumentImpl();
 		int attrNum = findex.length;
 		int attrNum2 = sindex.length;
-		System.out.println("left join para num:" + attrNum);
-		System.out.println("left join para num:" + attrNum2);
-		System.out.println("left join list:" + flist.size());
-		System.out.println("left join list:" + slist.size());
+		//System.out.println("left join para num:" + attrNum);
+		//System.out.println("left join para num:" + attrNum2);
+		//System.out.println("left join list:" + flist.size());
+		//System.out.println("left join list:" + slist.size());
 
 		HashMap<String, ArrayList<Node>> map = new HashMap<String, ArrayList<Node>>();
 		
@@ -1078,9 +1051,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		}
 		
     // join
-		for (Iterator<Node> iter = slist.iterator(); iter.hasNext();) {
-			Node n = iter.next();
-			
+		for (Node n : slist) {
 			String key = "";
 			NodeList schildren = n.getChildNodes();
 			for(int i: sindex)
@@ -1094,69 +1065,21 @@ public class XQueryVisitor implements XQueryParserVisitor {
 					
 					Element newTuple = document.createElement("tuple");
 					for (int i = 0; i < numOfChildren; i++) {
-						newTuple.appendChild(createNode(fchildren.item(i)));
+						newTuple.appendChild(document.adoptNode(fchildren.item(i).cloneNode(true)));
 					}
 					
 					numOfChildren = schildren.getLength();
 					for (int i = 0; i < numOfChildren; i++) {
-						newTuple.appendChild(createNode(schildren.item(i)));
-						//n.appendChild(createNode(fchildren.item(i)));
+						newTuple.appendChild(document.adoptNode(schildren.item(i).cloneNode(true)));
 					}
+					
+					//Coordinator.printNode(newTuple);
 					
 					res.add(newTuple);
 				}
-			} else {
-				//iter.remove();
 			}
 		}
-		/*int i = 0, j = 0;
-		System.out.println("fsize:" + fsize);
-		System.out.println("ssize:" + ssize);
-		while(i < fsize && j < ssize){
-			System.out.println("i:" + i + " j: " + j);
-			NodeList fchildren = flist.get(i).getChildNodes();
-			NodeList schildren = slist.get(j).getChildNodes();
-			String first = ((TextImpl) fchildren.item(findex[0]).getFirstChild()).getNodeValue();
-			String second = ((TextImpl) schildren.item(sindex[0]).getFirstChild()).getNodeValue();
-			if(first.compareTo(second) < 0){
-				++i;
-			}
-			else if(first.compareTo(second) > 0){
-				++j;
-			}
-			else{
-				int next = j;
-				
-				do{
-					int size = findex.length;
-					int k = 1;
-					while(k < size){
-						first = ((TextImpl)fchildren.item(findex[k]).getFirstChild()).getNodeValue();
-						second = ((TextImpl)schildren.item(sindex[k]).getFirstChild()).getNodeValue();
-						if(!first.equals(second))
-							break;
-					}
-					if(k == size){
-						Document doc = new DocumentImpl();
-						Element newTag = doc.createElement("tuple");
-						int s = fchildren.getLength();
-						for (int x = 0; x < s; ++x) {
-							newTag.appendChild(createNode(doc, fchildren.item(x)));
-						}
-						s = schildren.getLength();
-						for(int x = 0; x < s; ++x){
-							newTag.appendChild(createNode(doc, schildren.item(x)));
-						}
-						res.add(newTag);
-					}
-					if(next == ssize - 1)
-						break;
-					schildren = slist.get(++next).getChildNodes();
-				} while ((schildren.item(sindex[0]).getFirstChild().getNodeValue()).equals(fchildren.item(findex[0]).getFirstChild().getNodeValue()));
-				++i;
-			}		
-		}*/
-		System.out.println("haha");
+		
 		return res;
 	}
 }
