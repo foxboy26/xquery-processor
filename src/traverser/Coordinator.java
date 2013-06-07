@@ -48,8 +48,8 @@ public class Coordinator {
 					(ArrayList<Node>) root.jjtAccept(visitor, context);
 
 			System.out.println("XQuery result:");
-			printResult(resultSet);
-		  
+			//printResult(resultSet);
+		  //printNode(resultSet.get(0));
 		  double time = ((double) (new Date().getTime() - start.getTime())) / 1000;
 		  
 		  System.out.println(resultSet.size() + " results in set (" + String.format("%.2f", time) + " sec)");
