@@ -51,6 +51,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.xerces.dom.DocumentImpl;
@@ -665,8 +666,12 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTVar node, Object data) {
 		// TODO Auto-generated method stub
 		Context context = (Context) data;
-
-		return context.find(node.varName);
+		ArrayList<Node> res = context.find(node.varName);
+		
+		//if(node.varName.equals("$a"))
+		//	Coordinator.printNode(res.get(0));
+		
+		return res;
 	}
 
 	@Override
@@ -738,18 +743,18 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		//Document doc = new DocumentImpl();
 		Element newTag = document.createElement(node.tagName);
 		for (Node n : resultSet) {
-			newTag.appendChild(createNode(n));
+			newTag.appendChild(document.adoptNode(n.cloneNode(true)));
 		}
 
-		resultSet.clear();
-		resultSet.add(newTag);
+		ArrayList<Node> res = new ArrayList<Node>();
+		res.add(newTag);
 		
 		
 		/*for (Node n : resultSet) {
 			System.out.println(n.getFirstChild().getNodeValue());
 		}*/
 
-		return resultSet;
+		return res;
 	}
 
 	@Override
@@ -809,6 +814,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	  ArrayList<Node> seclist = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, data);
 	  String[] firstAttrList = (String[]) node.jjtGetChild(2).jjtAccept(this, data);
 	  String[] secAttrList = (String[]) node.jjtGetChild(3).jjtAccept(this, data);
+	  
 	  ArrayList<Node> res = new ArrayList<Node>();
 	  
 	  int attrNum = firstAttrList.length;
@@ -830,18 +836,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			  sindex[i] = getAttrIndex(tmp, secAttrList[i]);
 		  } 
 	  
-		  
-		  
-		 /* for(Node n: firstlist){
-			  Node no = n.getChildNodes().item(findex[0]).getFirstChild();
-			  System.out.println(no.getNodeValue());
-		  }
-		  /*sort(firstlist, findex[0]);
-		  for(Node n: firstlist){
-			  Node no = n.getChildNodes().item(findex[0]).getFirstChild();
-			  //System.out.println(no.getNodeValue());
-		  }
-		  sort(seclist, sindex[0]);*/
 		  res = join(firstlist, seclist, findex, sindex);
 		    
 		  return res;
@@ -910,10 +904,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			e.printStackTrace();
 		}
 
-		document = parser.getDocument();
+		Document doc = parser.getDocument();
 
 		ArrayList<Node> root = new ArrayList<Node>();
-		root.add(document);
+		root.add(doc);
 		return root;
 	}
 
@@ -1019,6 +1013,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 				newNode.appendChild(child);
 		}
 
+		//Coordinator.printNode(newNode);
+		
 		return newNode;
 	}
 	
@@ -1060,6 +1056,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		System.out.println("left join list:" + flist.size());
 		System.out.println("left join list:" + slist.size());
 
+		//for (Node n : slist)
+		//	Coordinator.printNode(n);
+		
+		
 		HashMap<String, ArrayList<Node>> map = new HashMap<String, ArrayList<Node>>();
 		
     // hash first list
@@ -1080,9 +1080,9 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		}
 		
     // join
-		int h = 0;
-		for(Node n: slist){
-			System.out.println(h++);
+		for (Iterator<Node> iter = slist.iterator(); iter.hasNext();) {
+			Node n = iter.next();
+			
 			String key = "";
 			NodeList schildren = n.getChildNodes();
 			for(int i: sindex)
@@ -1092,20 +1092,25 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			if(value != null){
 				for(Node m: value){
 					NodeList fchildren = m.getChildNodes();
-					Element newTag = document.createElement("tuple");
-					int s = fchildren.getLength();
-					for (int x = 0; x < s; ++x) {
-						newTag.appendChild(createNode(fchildren.item(x)));
-						if (h == 111) {
-							Coordinator.printNode(fchildren.item(x));
-						}
+					int numOfChildren = fchildren.getLength();
+					
+					Element newTuple = document.createElement("tuple");
+					for (int i = 0; i < numOfChildren; i++) {
+						newTuple.appendChild(createNode(fchildren.item(i)));
 					}
-					s = schildren.getLength();
-					for(int x = 0; x < s; ++x){
-						newTag.appendChild(createNode(schildren.item(x)));
-					}
-					res.add(newTag);
+					
+					/*numOfChildren = schildren.getLength();
+					for (int i = 0; i < numOfChildren; i++) {
+						newTuple.appendChild(createNode(schildren.item(i)));
+						//n.appendChild(createNode(fchildren.item(i)));
+					}*/
+					
+					//Coordinator.printNode(newTuple);
+					
+					res.add(newTuple);
 				}
+			} else {
+				//iter.remove();
 			}
 		}
 		/*int i = 0, j = 0;
