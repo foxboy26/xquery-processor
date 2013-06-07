@@ -274,9 +274,14 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTDdot node, Object data) {
 		// TODO Auto-generated method stub
 		ArrayList<Node> resultSet = new ArrayList<Node>();
-
+		if (data == null) {
+			return resultSet;
+		}
+		
 		for (Node n : (ArrayList<Node>) data) {
-			resultSet.add(n.getParentNode());
+			Node parent = n.getParentNode();
+			if (parent != null)
+				resultSet.add(parent);
 		}
 
 		return resultSet;
@@ -287,10 +292,12 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	public Object visit(ASTText node, Object data) {
 		// TODO Auto-generated method stub
 		ArrayList<Node> resultSet = new ArrayList<Node>();
-
+		if (data == null)
+			return resultSet;
+		
 		for (Node n : (ArrayList<Node>) data) {
+			if (n.getFirstChild() != null)
 			resultSet.add(n.getFirstChild());
-		//	System.out.println(((TextImpl)n.getFirstChild()).getNodeValue());
 		}
 		
 		return resultSet;
@@ -309,16 +316,19 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		// TODO Auto-generated method stub
 		checkNumOfChildren(node, 0, "TagName");
 
-		ArrayList<Node> nodeList = (ArrayList<Node>) data;
 		ArrayList<Node> resultSet = new ArrayList<Node>();
+		if (data == null)
+			return resultSet;
+		
+		ArrayList<Node> nodeList = (ArrayList<Node>) data;
 
 		for (Node n : nodeList) {
 			NodeList children = n.getChildNodes();
-			int numOfChildren = children.getLength();
-			for (int i = 0; i < numOfChildren; i++) {
-				if (children.item(i).getNodeName().equals(node.tagName))
-					resultSet.add(children.item(i));
-			}
+				int numOfChildren = children.getLength();
+				for (int i = 0; i < numOfChildren; i++) {
+					if (children.item(i).getNodeName().equals(node.tagName))
+						resultSet.add(children.item(i));
+				}
 		}
 
 		return resultSet;
