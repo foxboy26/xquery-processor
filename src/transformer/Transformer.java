@@ -132,7 +132,7 @@ public class Transformer {
 			}
 			
 			// rotate the ast tree
-			/*if (parent.jjtGetNumChildren() == 2 && parent.jjtGetChild(1) instanceof ASTRelSlash) {
+			if (parent.jjtGetNumChildren() == 2 && parent.jjtGetChild(1) instanceof ASTRelSlash) {
 				ASTRelSlash relslash = new ASTRelSlash(0);
 				ASTRelSlash relslash2 = new ASTRelSlash(0);
 
@@ -150,7 +150,7 @@ public class Transformer {
 				varNode.jjtSetParent(parent);
 				parent.jjtAddChild(relslash, 1);
 				relslash.jjtSetParent(parent);
-			} else {*/
+			} else {
 				ASTXQuerySlash xslash = new ASTXQuerySlash(0);
 				ASTRelSlash relslash = new ASTRelSlash(0);
 				
@@ -166,7 +166,7 @@ public class Transformer {
 				
 				parent.jjtAddChild(xslash, index);
 				xslash.jjtSetParent(parent);
-			//}
+			}
 		}
 		else{
 			childNum = node.jjtGetNumChildren();
