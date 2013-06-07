@@ -25,20 +25,20 @@ import transformer.Transformer;
 
 public class Coordinator {
 	public static void main(String args[]) {
-		// System.out.println("Reading from standard input...");
-		// String str = "doc(\"test.xml\")//book";
+
 		XQueryParser t;
+		
 		try {
-			t = new XQueryParser(new FileInputStream(new File("shake.txt")));
+			t = new XQueryParser(new FileInputStream(new File("query2")));
 			ASTStart root = t.Start();
 			root.dump(">");
 
 			Transformer transformer = new Transformer(root);
-			//if (transformer.isRewrittable) {
+			if (transformer.isRewrittable) {
 				root = transformer.rewrite();
 				System.out.println("Optimized plan: ");
 				root.jjtAccept(new PrinterVisitor(), 0);
-			//}
+			}
 				
 			Date start = new Date();	
 				
@@ -47,12 +47,11 @@ public class Coordinator {
 			ArrayList<Node> resultSet = 
 					(ArrayList<Node>) root.jjtAccept(visitor, context);
 
-			System.out.println("XQuery result:");
-			//printResult(resultSet);
-		  //printNode(resultSet.get(0));
-		  double time = ((double) (new Date().getTime() - start.getTime())) / 1000;
+			printResult(resultSet);
+			
+		  double diffTime = ((double) (new Date().getTime() - start.getTime())) / 1000;
 		  
-		  System.out.println(resultSet.size() + " results in set (" + String.format("%.2f", time) + " sec)");
+		  System.out.println(resultSet.size() + " results in set (" + String.format("%.2f", diffTime) + " sec)");
 		} catch (Exception e) {
 			System.out.println("Oops.");
 			System.out.println(e.getMessage());
@@ -61,6 +60,8 @@ public class Coordinator {
 	}
 
 	public static void printResult(ArrayList<Node> result) {
+		System.out.println("XQuery result:");
+		
 		PrintWriter writer = new PrintWriter(System.out);
 		XMLSerializer serializer = new XMLSerializer(
 				writer, new OutputFormat(Method.XML, "UTF-8", true));

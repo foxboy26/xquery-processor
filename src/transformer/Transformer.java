@@ -409,8 +409,6 @@ public class Transformer {
 			Node n = returnNodelist.get(i);
 			ASTXQueryComma curComma = new ASTXQueryComma(0);
 			
-			System.out.println("return clause " + n);
-			
 			String name = n.tagName;
 			ASTNewtag newtag = new ASTNewtag(0);
 			newtag.tagName = name.substring(1);
