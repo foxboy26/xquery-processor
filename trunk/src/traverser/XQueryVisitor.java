@@ -838,6 +838,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	  
 		  res = join(firstlist, seclist, findex, sindex);
 		    
+		  Coordinator.printNode(res.get(0));
 		  return res;
 	  }
 	  
@@ -904,10 +905,11 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			e.printStackTrace();
 		}
 
-		Document doc = parser.getDocument();
+		document = parser.getDocument();
 
 		ArrayList<Node> root = new ArrayList<Node>();
-		root.add(doc);
+		root.add(document);
+		
 		return root;
 	}
 
@@ -1056,10 +1058,6 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		System.out.println("left join list:" + flist.size());
 		System.out.println("left join list:" + slist.size());
 
-		//for (Node n : slist)
-		//	Coordinator.printNode(n);
-		
-		
 		HashMap<String, ArrayList<Node>> map = new HashMap<String, ArrayList<Node>>();
 		
     // hash first list
@@ -1099,13 +1097,11 @@ public class XQueryVisitor implements XQueryParserVisitor {
 						newTuple.appendChild(createNode(fchildren.item(i)));
 					}
 					
-					/*numOfChildren = schildren.getLength();
+					numOfChildren = schildren.getLength();
 					for (int i = 0; i < numOfChildren; i++) {
 						newTuple.appendChild(createNode(schildren.item(i)));
 						//n.appendChild(createNode(fchildren.item(i)));
-					}*/
-					
-					//Coordinator.printNode(newTuple);
+					}
 					
 					res.add(newTuple);
 				}
