@@ -71,6 +71,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	
 	private ArrayList<ArrayList<Node>> finalSet = new ArrayList<ArrayList<Node>>();
 	private int level = -1;
+	private Document document = new DocumentImpl();
 	
 	@Override
 	public Object visit(SimpleNode node, Object data) {
@@ -716,8 +717,8 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		// TODO Auto-generated method stub
 		checkNumOfChildren(node, 0, "[String]");
 
-		Document doc = new DocumentImpl();
-		Text newText = doc.createTextNode(node.strName.substring(1,
+		//Document doc = new DocumentImpl();
+		Text newText = document.createTextNode(node.strName.substring(1,
 				node.strName.length() - 1));
 		ArrayList<Node> resultSet = new ArrayList<Node>();
 		resultSet.add(newText);
@@ -734,10 +735,10 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		ArrayList<Node> resultSet = (ArrayList<Node>) node.jjtGetChild(0)
 				.jjtAccept(this, context);
 
-		Document doc = new DocumentImpl();
-		Element newTag = doc.createElement(node.tagName);
+		//Document doc = new DocumentImpl();
+		Element newTag = document.createElement(node.tagName);
 		for (Node n : resultSet) {
-			newTag.appendChild(createNode(doc, n));
+			newTag.appendChild(createNode(n));
 		}
 
 		resultSet.clear();
@@ -833,12 +834,12 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			  Node no = n.getChildNodes().item(findex[0]).getFirstChild();
 			  System.out.println(no.getNodeValue());
 		  }*/
-		  sort(firstlist, findex[0]);
+		  /*sort(firstlist, findex[0]);
 		  for(Node n: firstlist){
 			  Node no = n.getChildNodes().item(findex[0]).getFirstChild();
 			  //System.out.println(no.getNodeValue());
 		  }
-		  sort(seclist, sindex[0]);
+		  sort(seclist, sindex[0]);*/
 		  res = join(firstlist, seclist, findex, sindex);
 		    
 		  return res;
@@ -907,7 +908,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			e.printStackTrace();
 		}
 
-		Document document = parser.getDocument();
+		document = parser.getDocument();
 
 		ArrayList<Node> root = new ArrayList<Node>();
 		root.add(document);
@@ -1002,16 +1003,16 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		}
 	}
 
-	public Node createNode(Document doc, Node n) {
+	public Node createNode(Node n) {
 		Node newNode = null;
 		if (n instanceof ElementImpl)
-			newNode = doc.createElement(((ElementImpl) n).getTagName());
+			newNode = document.createElement(((ElementImpl) n).getTagName());
 		else if (n instanceof TextImpl && n.getNodeValue().trim().length() > 0)
-			newNode = doc.createTextNode(n.getNodeValue());
+			newNode = document.createTextNode(n.getNodeValue());
 
 		NodeList children = n.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
-			Node child = createNode(doc, children.item(i));
+			Node child = createNode(children.item(i));
 			if (child != null)
 				newNode.appendChild(child);
 		}
@@ -1046,7 +1047,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	
 	private ArrayList<Node> join(ArrayList<Node> flist, ArrayList<Node> slist, int[] findex, int[] sindex){
 		ArrayList<Node> res = new ArrayList<Node>();
-		
+		//Document doc = new DocumentImpl();
 		int attrNum = findex.length;
 		int attrNum2 = sindex.length;
 		System.out.println("1:" + attrNum);
@@ -1079,15 +1080,15 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			if(value != null){
 				for(Node m: value){
 					NodeList fchildren = m.getChildNodes();
-					Document doc = new DocumentImpl();
-					Element newTag = doc.createElement("tuple");
+					
+					Element newTag = document.createElement("tuple");
 					int s = fchildren.getLength();
 					for (int x = 0; x < s; ++x) {
-						newTag.appendChild(createNode(doc, fchildren.item(x)));
+						newTag.appendChild(createNode(fchildren.item(x)));
 					}
 					s = schildren.getLength();
 					for(int x = 0; x < s; ++x){
-						newTag.appendChild(createNode(doc, schildren.item(x)));
+						newTag.appendChild(createNode(schildren.item(x)));
 					}
 					res.add(newTag);
 					
