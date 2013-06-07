@@ -803,7 +803,9 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	@Override
   public Object visit(ASTJoin node, Object data) {
 	  // TODO Auto-generated method stub
+		System.out.println("[ASTJoin] first flwr");
 	  ArrayList<Node> firstlist = (ArrayList<Node>) node.jjtGetChild(0).jjtAccept(this, data);
+		System.out.println("[ASTJoin] second flwr");
 	  ArrayList<Node> seclist = (ArrayList<Node>) node.jjtGetChild(1).jjtAccept(this, data);
 	  String[] firstAttrList = (String[]) node.jjtGetChild(2).jjtAccept(this, data);
 	  String[] secAttrList = (String[]) node.jjtGetChild(3).jjtAccept(this, data);
@@ -833,7 +835,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 		 /* for(Node n: firstlist){
 			  Node no = n.getChildNodes().item(findex[0]).getFirstChild();
 			  System.out.println(no.getNodeValue());
-		  }*/
+		  }
 		  /*sort(firstlist, findex[0]);
 		  for(Node n: firstlist){
 			  Node no = n.getChildNodes().item(findex[0]).getFirstChild();
@@ -1046,18 +1048,26 @@ public class XQueryVisitor implements XQueryParserVisitor {
 	}
 	
 	private ArrayList<Node> join(ArrayList<Node> flist, ArrayList<Node> slist, int[] findex, int[] sindex){
+		
+		System.out.println("[join] begin");
+		
 		ArrayList<Node> res = new ArrayList<Node>();
 		//Document doc = new DocumentImpl();
 		int attrNum = findex.length;
 		int attrNum2 = sindex.length;
-		System.out.println("1:" + attrNum);
-		System.out.println("2:" + attrNum2);
+		System.out.println("left join para num:" + attrNum);
+		System.out.println("left join para num:" + attrNum2);
+		System.out.println("left join list:" + flist.size());
+		System.out.println("left join list:" + slist.size());
+
 		HashMap<String, ArrayList<Node>> map = new HashMap<String, ArrayList<Node>>();
 		
+    // hash first list
 		for(Node n: flist){
 			String key = "";
 			for(int i: findex)
 				key += n.getChildNodes().item(i).getFirstChild().getNodeValue() + ":";
+
 			ArrayList<Node> value = map.get(key);
 			if(value == null){
 				value = new ArrayList<Node>();
@@ -1069,6 +1079,7 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			}
 		}
 		
+    // join
 		int h = 0;
 		for(Node n: slist){
 			System.out.println(h++);
@@ -1076,22 +1087,24 @@ public class XQueryVisitor implements XQueryParserVisitor {
 			NodeList schildren = n.getChildNodes();
 			for(int i: sindex)
 				key += schildren.item(i).getFirstChild().getNodeValue() + ":";
+
 			ArrayList<Node> value = map.get(key);
 			if(value != null){
 				for(Node m: value){
 					NodeList fchildren = m.getChildNodes();
-					
 					Element newTag = document.createElement("tuple");
 					int s = fchildren.getLength();
 					for (int x = 0; x < s; ++x) {
 						newTag.appendChild(createNode(fchildren.item(x)));
+						if (h == 111) {
+							Coordinator.printNode(fchildren.item(x));
+						}
 					}
 					s = schildren.getLength();
 					for(int x = 0; x < s; ++x){
 						newTag.appendChild(createNode(schildren.item(x)));
 					}
 					res.add(newTag);
-					
 				}
 			}
 		}
