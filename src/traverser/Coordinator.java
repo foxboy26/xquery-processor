@@ -43,7 +43,7 @@ public class Coordinator {
 			newRoot = transformer.rewrite();
 			
 			Context context = new Context();
-			XQueryParserVisitor visitor = new XQueryVisitor();
+			XQueryVisitor visitor = new XQueryVisitor();
 			ArrayList<Node> resultSet;
 			
 			Date start = new Date();	
