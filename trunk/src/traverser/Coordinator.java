@@ -30,7 +30,7 @@ public class Coordinator {
 		if (args.length == 1) {
 			fileName = args[0];
 		} else {
-			fileName = "shake.txt";
+			fileName = "query2";
 		}
 		try {
 			XQueryParser t = new XQueryParser(new FileInputStream(new File(fileName)));
